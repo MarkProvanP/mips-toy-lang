@@ -1,0 +1,69 @@
+program ::=
+	{ function } ;
+	
+function ::=
+	"FUNCTION" ident '(' definearguments ')' '{' statements '}' ;
+	
+definearguments ::=
+	ε
+	ident { ',' ident } ;
+	
+statements ::=
+	{ statement } ;
+
+statement ::=
+	functioncall
+	assignment
+	ifelse
+	while
+	dowhile ;
+
+functioncall ::=
+	ident '(' callarguments ')' ';' ;
+	
+callarguments ::=
+	ε
+	expression { ',' expression } ;
+
+assignment ::=
+	ident '=' expression ';' ;
+	
+ifelse ::=
+	"IF" '(' expression ')' '{' statements '}' "ELSE" '{' statements '}' ';' ;
+
+while ::=
+	"WHILE" '(' expression ')' '{' statements '}' ';' ;
+
+dowhile ::=
+	"DO" '{' statements '}' "WHILE" '(' expression ')' ';' ;
+	
+expression ::=
+	primary-expression
+	binary-expression ;
+
+primary-expression ::=
+	number
+	ident ;
+	
+binary-expression ::=
+	expression operator expression ;
+
+operator ::=
+	'+' | '-' | '*' | '/' |
+	'==' | '!=' | '>' | '<' | '<=' | '>=' ;
+
+ident ::=
+	letter { letter | digit } ;
+
+letter ::=
+	"a"..."z"  "A"..."Z" ;
+
+number ::=
+	"0"
+	nonzerodigit { digit } ;
+
+digit ::=
+	"0"..."9" ;
+
+nonzerodigit ::=
+	"1"..."9" ;

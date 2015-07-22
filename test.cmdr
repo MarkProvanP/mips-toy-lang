@@ -1,0 +1,20 @@
+function word ( one , two ) {
+	seven = two + one ;
+	do {
+		word (2+5, 4);
+	} while (derp == i);
+}
+
+function hello() {
+	if (this) {
+		perform(something);
+	} else {
+		myvar = 9;
+	};
+}
+
+function empty() {
+	while (something) {
+		m(56);
+	} ;
+}
