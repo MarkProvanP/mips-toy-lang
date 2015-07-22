@@ -8,7 +8,7 @@ def main():
 
     print("hello world")
 
-    myLexer = lexer_code.Lexer()
+    myLexer = lexer_code.Lexer
 
     lexedTokens = []
     newToken = myLexer.lex()

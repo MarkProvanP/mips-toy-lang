@@ -1,3 +1,6 @@
+StatementStartingTokens = []
+DefineArgumentContinueTokens = []
+
 class Token(object):
     '''Common base class for all Tokens'''
 
@@ -30,6 +33,7 @@ class CommaToken(Token):
 class DoToken(Token):
     def __init__(self, original, lineNo, charStart, charEnd):
         super(DoToken, self).__init__(original, lineNo, charStart, charEnd)
+StatementStartingTokens.append(DoToken)
 
 class ElseToken(Token):
     def __init__(self, original, lineNo, charStart, charEnd):
@@ -50,10 +54,13 @@ class FunctionToken(Token):
 class IdentToken(Token):
     def __init__(self, original, lineNo, charStart, charEnd):
         super(IdentToken, self).__init__(original, lineNo, charStart, charEnd)
+StatementStartingTokens.append(IdentToken)
+DefineArgumentContinueTokens.append(IdentToken)
 
 class IfToken(Token):
     def __init__(self, original, lineNo, charStart, charEnd):
         super(IfToken, self).__init__(original, lineNo, charStart, charEnd)
+StatementStartingTokens.append(IfToken)
 
 class LeftBraceToken(Token):
     def __init__(self, original, lineNo, charStart, charEnd):
@@ -82,6 +89,7 @@ class RightBraceToken(Token):
 class RightParenToken(Token):
     def __init__(self, original, lineNo, charStart, charEnd):
         super(RightParenToken, self).__init__(original, lineNo, charStart, charEnd)
+DefineArgumentContinueTokens.append(RightParenToken)
 
 class RightSquareToken(Token):
     def __init__(self, original, lineNo, charStart, charEnd):
@@ -94,3 +102,4 @@ class SemiColonToken(Token):
 class WhileToken(Token):
     def __init__(self, original, lineNo, charStart, charEnd):
         super(WhileToken, self).__init__(original, lineNo, charStart, charEnd)
+StatementStartingTokens.append(WhileToken)
