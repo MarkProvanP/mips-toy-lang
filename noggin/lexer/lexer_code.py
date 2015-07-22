@@ -46,6 +46,7 @@ class Lexer:
 
         if Lexer.c.isalpha():
             print("Is alpha")
+            Lexer.tokenStartCharNo = Lexer.currentCharNo
             while Lexer.c.isalpha() or Lexer.c.isdigit():
                 string += Lexer.c
                 Lexer.c = Lexer.get_char()
@@ -57,6 +58,7 @@ class Lexer:
             return Lexer.makeWordToken(string)
         elif Lexer.c.isdigit():
             print("Is digit")
+            Lexer.tokenStartCharNo = Lexer.currentCharNo
             while Lexer.c.isdigit():
                 string += Lexer.c
                 Lexer.c = Lexer.get_char()
@@ -69,6 +71,7 @@ class Lexer:
         elif Lexer.isCharPunctuation(Lexer.c):
             print("Is punctuation")
             string += Lexer.c
+            Lexer.tokenStartCharNo = Lexer.currentCharNo
             if Lexer.isCharSinglePunctuation(Lexer.c):
                 print("Is single punctuation")
                 Lexer.c = Lexer.get_char()
