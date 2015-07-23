@@ -25,7 +25,7 @@ def test_tokens():
     elseToken = ElseToken("else", 5, 8, 12)
     print(elseToken.get_info())
 
-    eoiToken = EOIToken("", 10, 0, 0)
+    eoiToken = EOIToken()
     print(eoiToken.get_info())
 
     forToken = ForToken("for", 8, 1, 4)
