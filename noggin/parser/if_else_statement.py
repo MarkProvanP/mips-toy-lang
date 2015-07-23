@@ -1,13 +1,13 @@
 import os
 import sys
-sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + '../..'))
+#sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + '../..'))
 
-import noggin.lexer
 from noggin.lexer.tokens import *
-from parser_code import Parser
-from statement import Statement
-from statements import Statements
-from expression import Expression
+
+from noggin.parser.parser_code import Parser
+from noggin.parser.statement import Statement
+from noggin.parser.statements import Statements
+from noggin.parser.expression import Expression
 
 class IfElseStatement(Statement):
     ifExpression = None

@@ -1,13 +1,13 @@
 import os
 import sys
-sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + '../..'))
+#sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + '../..'))
 
-import noggin.lexer
 from noggin.lexer.tokens import *
-from parser_code import Parser
-from ident import Ident
-from define_arguments import DefineArguments
-from statements import Statements
+
+from noggin.parser.parser_code import Parser
+from noggin.parser.ident import Ident
+from noggin.parser.define_arguments import DefineArguments
+from noggin.parser.statements import Statements
 
 class Function:
     functionName = None

@@ -9,7 +9,7 @@ class Parser:
 
     @staticmethod
     def get_token():
-        return Parser.tokenList[tokenPosition]
+        return Parser.tokenList[Parser.tokenPosition]
 
     @staticmethod
     def advance_token():

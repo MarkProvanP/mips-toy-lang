@@ -1,10 +1,11 @@
 import os
 import sys
-sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + '../..'))
+#sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + '../..'))
 
-import noggin.lexer
 from noggin.lexer.tokens import *
-from parser_code import Parser
+
+from noggin.parser import parser_code
+from noggin.parser.parser_code import Parser
 
 class Expression:
     @staticmethod
@@ -13,6 +14,7 @@ class Expression:
 
     @staticmethod
     def fraser_hanson(k):
+        from noggin.parser import binary_expression, primary_expression
         from binary_expression import BinaryExpression
         from primary_expression import PrimaryExpression
 

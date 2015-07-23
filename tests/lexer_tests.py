@@ -10,9 +10,6 @@ def teardown():
 def test_tokens():
     print("Testing tokens")
 
-    basicToken = Token("{", 3, 1, 2)
-    print(basicToken.get_info())
-
     assignToken = AssignToken("=", 4, 1, 2)
     print(assignToken.get_info())
 
