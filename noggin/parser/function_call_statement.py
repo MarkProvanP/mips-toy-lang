@@ -6,20 +6,21 @@ import noggin.lexer
 from noggin.lexer.tokens import *
 from parser_code import Parser
 from statement import Statement
-from expression import Expression
+from call_arguments import CallArguments
+from ident import Ident
 
-class AssignmentStatement(Statement):
+class FunctionCallStatement(Statement):
     ident = None
-    expression = None
+    callArguments = None
 
-    def __init__(self, ident, expression):
+    def __init__(self, ident, callArguments):
         self.ident = ident
-        self.expression = expression
+        self.callArguments = callArguments
 
     @staticmethod
     def parse():
         staticIdent = None
-        staticExpression = None
+        staticCallArguments = None
 
         if isinstance(Parser.get_token(), IdentToken):
             staticIdent = Ident(Parser.get_token())
@@ -27,16 +28,21 @@ class AssignmentStatement(Statement):
         else:
             raise ParserException(Parser.get_token(), IdentToken)
 
-        if isinstance(Parser.get_token(), AssignToken):
+        if isinstance(Parser.get_token(), LeftParenToken):
             Parser.advance_token()
         else:
-            raise ParserException(Parser.get_token(), AssignToken)
+            raise ParserException(Parser.get_token(), LeftParenToken)
 
-        staticExpression = Expression.parse()
+        staticCallArguments = CallArguments.parse()
+
+        if isinstance(Parser.get_token(), RightParenToken):
+            Parser.advance_token()
+        else:
+            raise ParserException(Parser.get_token(), RightParenToken)
 
         if isinstance(Parser.get_token(), SemiColonToken):
             Parser.advance_token()
         else:
             raise ParserException(Parser.get_token(), SemiColonToken)
 
-        return AssignmentStatement(staticIdent, staticExpression)
+        return FunctionCallStatement(staticIdent, staticCallArguments)

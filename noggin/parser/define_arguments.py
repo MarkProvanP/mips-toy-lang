@@ -5,6 +5,7 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + '../..'))
 import noggin.lexer
 from noggin.lexer.tokens import *
 from parser_code import Parser
+from ident import Ident
 
 class DefineArguments:
     defineArguments = []

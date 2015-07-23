@@ -5,6 +5,9 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + '../..'))
 import noggin.lexer
 from noggin.lexer.tokens import *
 from parser_code import Parser
+from ident import Ident
+from define_arguments import DefineArguments
+from statements import Statements
 
 class Function:
     functionName = None
@@ -22,6 +25,8 @@ class Function:
         staticFunctionDefineArguments = None
         staticStatements = None
 
+        # If a function is being parsed, then we already have a function token
+        # here so we don't need to check again
         Parser.advance_token()
 
         if isinstance(Parser.get_token(), IdentToken):

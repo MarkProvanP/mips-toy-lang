@@ -7,36 +7,20 @@ from noggin.lexer.tokens import *
 from parser_code import Parser
 from statement import Statement
 from expression import Expression
+from statements import Statements
 
-class DoWhileStatement(Statement):
-    doStatements = None
+class WhileStatement(Statement):
     whileExpression = None
+    doStatements = None
 
-    def __init__(self, doStatements, whileExpression):
-        self.doStatements = doStatements
+    def __init__(self, whileExpression, doStatements):
         self.whileExpression = whileExpression
+        self.doStatements = doStatements
 
     @staticmethod
     def parse():
-        staticDoStatements = None
         staticWhileExpression = None
-
-        if isinstance(Parser.get_token(), DoToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), DoToken)
-
-        if isinstance(Parser.get_token(), LeftBraceToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), LeftBraceToken)
-
-        staticDoStatements = Statements.parse()
-
-        if isinstance(Parser.get_token(), RightBraceToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), RightBraceToken)
+        staticDoStatements = None
 
         if isinstance(Parser.get_token(), WhileToken):
             Parser.advance_token()
@@ -55,9 +39,16 @@ class DoWhileStatement(Statement):
         else:
             raise ParserException(Parser.get_token(), RightParenToken)
 
-        if isinstance(Parser.get_token(), SemiColonToken):
+        if isinstance(Parser.get_token(), LeftBraceToken):
             Parser.advance_token()
         else:
-            raise ParserException(Parser.get_token(), SemiColonToken)
+            raise ParserException(Parser.get_token(), LeftBraceToken)
 
-        return DoWhileStatement(staticDoStatements, staticWhileExpression)
+        staticDoStatements = Statements.parse()
+
+        if isinstance(Parser.get_token(), RightBraceToken):
+            Parser.advance_token()
+        else:
+            raise ParserException(Parser.get_token(), RightBraceToken)
+
+        return WhileStatement(staticWhileExpression, staticDoStatements)
