@@ -31,7 +31,10 @@ statement ::=
 	while
 	dowhile
 	return
-	declare ;
+	declare
+	switch
+	break
+	fallthrough ;
 
 functioncall ::=
 	ident '(' callarguments ')' ';' ;
@@ -62,6 +65,16 @@ return ::=
 declare ::=
 	"DECLARE" typeandname ';'
 	"DECLARE" typeandname "=" primary-expression ;
+
+switch ::=
+	"SWITCH" '(' expression ')' '{' { casestatement } '}'
+	"SWITCH" '(' expression ')' '{' { casestatement } defaultstatement '}'
+
+casestatement ::=
+	"CASE" primary-expression ":" statements
+
+defaultstatement ::=
+	"DEFAULT" ":" statements
 
 expression ::=
 	primary-expression

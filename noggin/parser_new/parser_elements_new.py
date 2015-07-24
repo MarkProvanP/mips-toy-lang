@@ -2,6 +2,12 @@ from lexer.tokens import *
 
 from parser_new.parser_code_new import Parser, ParserException
 
+def expect_token(token):
+    if isinstance(Parser.get_token(), token):
+        Parser.advance_token()
+    else:
+        raise ParserException(Parser.get_token(), token)
+
 class Expression:
     @staticmethod
     def parse():
@@ -140,6 +146,24 @@ class Statement:
                 return Declare.parse()
             except ParserException as e:
                 print("Caught " + str(e) + " while parsing Statement, ReturnStatement")
+                raise e
+        elif isinstance(Parser.get_token(), SwitchToken):
+            try:
+                return SwitchStatement.parse()
+            except ParserException as e:
+                print("Caught " + str(e) + " while parsing Statement, SwitchStatement")
+                raise e
+        elif isinstance(Parser.get_token(), FallThroughToken):
+            try:
+                return FallThroughStatement.parse()
+            except ParserException as e:
+                print("Caught " + str(e) + " while parsing Statement, FallThroughStatement")
+                raise e
+        elif isinstance(Parser.get_token(), BreakToken):
+            try:
+                return BreakStatement.parse()
+            except ParserException as e:
+                print("Caught " + str(e) + " while parsing Statement, BreakStatement")
                 raise e
         else:
             raise ParserException(Parser.get_token(), "StatementStartingToken")
@@ -308,6 +332,20 @@ class FunctionDeclareArguments:
                 raise ParserException(Parser.get_token(), IdentToken)
 
         return FunctionDeclareArguments(staticFunctionDeclareArguments)
+
+class FallThroughStatement(Statement):
+    @staticmethod
+    def parse():
+        expect_token(FallThroughToken)
+        expect_token(SemiColonToken)
+        return FallThroughStatement()
+
+class BreakStatement(Statement):
+    @staticmethod
+    def parse():
+        expect_token(BreakToken)
+        expect_token(SemiColonToken)
+        return BreakStatement()
 
 class DoWhileStatement(Statement):
     doStatements = None
@@ -641,6 +679,106 @@ class Statements:
                 raise e
             staticStatements.append(nextStaticStatement)
         return Statements(staticStatements)
+
+class SwitchStatement(Statement):
+    switchExpression = None
+    cases = []
+    default = None
+
+    def __init__(self, switchExpression, cases, default):
+        self.switchExpression = switchExpression
+        self.cases = cases
+        self.default = default
+
+    @staticmethod
+    def parse():
+        staticSwitchExpression = None
+        staticCases = []
+        staticDefault = None
+
+        expect_token(SwitchToken)
+
+        expect_token(LeftParenToken)
+
+        try:
+            staticSwitchExpression = Expression.parse()
+        except ParserException as e:
+            print("Caught " + str(e) + " while parsing SwitchStatement switch expression")
+            raise e
+
+        expect_token(RightParenToken)
+
+        expect_token(LeftBraceToken)
+
+        while isinstance(Parser.get_token(), CaseToken):
+            try:
+                nextStaticCase = CaseNotAStatement.parse()
+                staticCases.append(nextStaticCase)
+            except ParserException as e:
+                print("Caught " + str(e) + " while parsing SwitchStatement case not-a-statement no " + str(1 + len(staticCases)))
+                raise e
+
+        if isinstance(Parser.get_token(), DefaultToken):
+            try:
+                staticDefault = DefaultNotAStatement.parse()
+            except ParserException as e:
+                print("Caught " + str(e) + " while parsing SwitchStatement default not-a-statement")
+                raise e
+
+        expect_token(RightBraceToken)
+
+class CaseNotAStatement:
+    primaryExpression = None
+    statements = None
+
+    def __init__(self, primaryExpression, statements):
+        self.primaryExpression = primaryExpression
+        self.statements = statements
+
+    @staticmethod
+    def parse():
+        staticPrimaryExpression = None
+        staticStatements = None
+
+        expect_token(CaseToken)
+
+        try:
+            staticPrimaryExpression = PrimaryExpression.parse()
+        except ParserException as e:
+            print("Caught " + str(e) + " while parsing CaseNotAStatement case expression")
+            raise e
+
+        expect_token(ColonToken)
+
+        try:
+            staticStatements = Statements.parse()
+        except ParserException as e:
+            print("Caught " + str(e) + " while parsing CaseNotAStatement case statements")
+            raise e
+
+        return CaseNotAStatement(staticPrimaryExpression, staticStatements)
+
+class DefaultNotAStatement:
+    statements = None
+
+    def __init__(self, statements):
+        self.statements = statements
+
+    @staticmethod
+    def parse():
+        staticStatements = None
+
+        expect_token(DefaultToken)
+
+        expect_token(ColonToken)
+
+        try:
+            staticStatements = Statements.parse()
+        except ParserException as e:
+            print("Caught " + str(e) + " while parsing CaseNotAStatement case statements")
+            raise e
+
+        return DefaultNotAStatement(staticStatements)
 
 class WhileStatement(Statement):
     whileExpression = None

@@ -57,6 +57,19 @@ class AssignToken(Token):
     def __init__(self, original = "=", lineNo = uln, charStart = ucs, charEnd = uce):
         super(AssignToken, self).__init__(original, lineNo, charStart, charEnd)
 
+class BreakToken(Token):
+    def __init__(self, original = "break", lineNo = uln, charStart = ucs, charEnd = uce):
+        super(BreakToken, self).__init__(original, lineNo, charStart, charEnd)
+StatementStartingTokens.append(BreakToken)
+
+class CaseToken(Token):
+    def __init__(self, original = "case", lineNo = uln, charStart = ucs, charEnd = uce):
+        super(CaseToken, self).__init__(original, lineNo, charStart, charEnd)
+
+class ColonToken(Token):
+    def __init__(self, original = ":", lineNo = uln, charStart = ucs, charEnd = uce):
+        super(ColonToken, self).__init__(original, lineNo, charStart, charEnd)
+
 class CommaToken(Token):
     def __init__(self, original = ",", lineNo = uln, charStart = ucs, charEnd = uce):
         super(CommaToken, self).__init__(original, lineNo, charStart, charEnd)
@@ -65,6 +78,10 @@ class DeclareToken(Token):
     def __init__(self, original = "declare", lineNo = uln, charStart = ucs, charEnd = uce):
         super(DeclareToken, self).__init__(original, lineNo, charStart, charEnd)
 StatementStartingTokens.append(DeclareToken)
+
+class DefaultToken(Token):
+    def __init__(self, original = "default", lineNo = uln, charStart = ucs, charEnd = uce):
+        super(DefaultToken, self).__init__(original, lineNo, charStart, charEnd)
 
 class DoToken(Token):
     def __init__(self, original = "do", lineNo = uln, charStart = ucs, charEnd = uce):
@@ -83,6 +100,11 @@ class ElseToken(Token):
 class EOIToken(Token):
     def __init__(self):
         super(EOIToken, self).__init__(None, None, None, None)
+
+class FallThroughToken(Token):
+    def __init__(self, original = "fallthrough", lineNo = uln, charStart = ucs, charEnd = uce):
+        super(FallThroughToken, self).__init__(original, lineNo, charStart, charEnd)
+StatementStartingTokens.append(FallThroughToken)
 
 class ForToken(Token):
     def __init__(self, original = "for", lineNo = uln, charStart = ucs, charEnd = uce):
@@ -151,6 +173,11 @@ class RightSquareToken(Token):
 class SemiColonToken(Token):
     def __init__(self, original = ";", lineNo = uln, charStart = ucs, charEnd = uce):
         super(SemiColonToken, self).__init__(original, lineNo, charStart, charEnd)
+
+class SwitchToken(Token):
+    def __init__(self, original = "switch", lineNo = uln, charStart = ucs, charEnd = uce):
+        super(SwitchToken, self).__init__(original, lineNo, charStart, charEnd)
+StatementStartingTokens.append(SwitchToken)
 
 class WhileToken(Token):
     def __init__(self, original = ";", lineNo = uln, charStart = ucs, charEnd = uce):

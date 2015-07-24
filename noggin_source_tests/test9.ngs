@@ -1,0 +1,12 @@
+# test switch statement
+function void sw() {
+  switch(hello) {
+  case 'a':
+    doSomething();
+    fallthrough;
+  case 'b':
+    doAnotherThing();
+  default:
+    lol();
+  }
+}

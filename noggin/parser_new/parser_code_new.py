@@ -1,4 +1,4 @@
-from lexer import tokens
+from lexer.tokens import Token
 
 class Parser:
     tokenList = []
@@ -38,5 +38,5 @@ class ParserException(Exception):
         self.expected = expected
 
     def __str__(self):
-        return "Parser Exception: expected " + str(self.expected.__name__) \
+        return "Parser Exception: expected " + str(self.expected.__name__) if isinstance(self.expected, Token) else str(self.expected)\
             + " but got " + str(self.token)
