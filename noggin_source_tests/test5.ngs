@@ -1,4 +1,4 @@
-function equals() {
+function void equals() {
   # declare x to be of type 'int'
   declare int x;
   if(x==1) {

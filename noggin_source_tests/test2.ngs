@@ -1,5 +1,5 @@
 #this is a two
 #line comment
-function oneAssignment() {
+function void oneAssignment() {
 	s = 1;
 }

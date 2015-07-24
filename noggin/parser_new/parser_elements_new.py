@@ -368,7 +368,7 @@ class DoWhileStatement(Statement):
 
 
 class Function:
-    functionName = None
+    functionTypeAndName = None
     functionDeclareArguments = None
     statements = None
 
@@ -379,17 +379,17 @@ class Function:
 
     @staticmethod
     def parse():
-        staticFunctionName = None
+        staticFunctionTypeAndName = None
         staticFunctionDeclareArguments = None
         staticStatements = None
 
-        # If a function is being parsed, then we already have a function token
-        # here so we don't need to check again
-        Parser.advance_token()
+        if isinstance(Parser.get_token(), FunctionToken):
+            Parser.advance_token()
+        else:
+            raise ParserException(Parser.get_token(), FunctionToken)
 
         if isinstance(Parser.get_token(), IdentToken):
-            staticFunctionName = Ident(Parser.get_token())
-            Parser.advance_token()
+            staticFunctionTypeAndName = TypeAndName.parse()
         else:
             raise ParserException(Parser.get_token(), IdentToken)
 
@@ -425,7 +425,7 @@ class Function:
         else:
             raise ParserException(Parser.get_token(), RightBraceToken)
 
-        return Function(staticFunctionName, staticFunctionDeclareArguments, staticStatements)
+        return Function(staticFunctionTypeAndName, staticFunctionDeclareArguments, staticStatements)
 
 class FunctionCallStatement(Statement):
     ident = None

@@ -12,7 +12,7 @@ program ::=
 	{ function } ;
 
 function ::=
-	"FUNCTION" ident '(' functiondeclarearguments ')' '{' statements '}' ;
+	"FUNCTION" typeandname '(' functiondeclarearguments ')' '{' statements '}' ;
 
 functiondeclarearguments ::=
 	ε

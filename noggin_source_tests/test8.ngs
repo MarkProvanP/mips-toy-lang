@@ -1,6 +1,6 @@
-# Test characters
+# Test characters and function type and name
 
-function testChar() {
+function void testChar() {
   declare char e;
   e = 'e';
   declare char nl;
@@ -9,7 +9,7 @@ function testChar() {
 
 # Test strings and declare/value
 
-function testString() {
+function int testString() {
   declare string s = "hello world";
   declare string snl = "newline\n";
 }

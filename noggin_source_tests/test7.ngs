@@ -1,11 +1,11 @@
-function testIf(int a) {
+function void testIf(int a) {
   if (a < 5) {
     print(hello);
   }
   return a;
 }
 
-function testIfElse(bool b) {
+function void testIfElse(bool b) {
   if (b * 3 == 6) {
     print(hello);
   } else {
@@ -13,7 +13,7 @@ function testIfElse(bool b) {
   }
 }
 
-function testIfElif(int a) {
+function void testIfElif(int a) {
   if (a / 32 == 1) {
     print(a);
   } elif (a / 14 == 2) {
@@ -21,7 +21,7 @@ function testIfElif(int a) {
   }
 }
 
-function testIfElifElse(bool c) {
+function void testIfElifElse(bool c) {
   if (false) {
     doSomething();
   } elif (otherCondition) {
@@ -31,6 +31,6 @@ function testIfElifElse(bool c) {
   }
 }
 
-function testMultipleElifs() {
+function void testMultipleElifs() {
   if(c) {} elif (d){doSomething();} elif(condition) {anotherThing();} else { derp(); }
 }

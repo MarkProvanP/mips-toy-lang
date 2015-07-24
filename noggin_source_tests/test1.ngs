@@ -1,11 +1,11 @@
 # test1.ngs
-function empty() { }
+function void empty() { }
 
-function hello() {
+function void hello() {
   print(hello);
 }
 
-function tw() {
+function void tw() {
   h=1+1;
   return 1;
 }

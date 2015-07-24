@@ -1,7 +1,7 @@
 # test6.ngs
 # this should test all the different operators
 
-function hello() {
+function void hello() {
   declare int a;
   declare int b;
   a = 1 + 2;

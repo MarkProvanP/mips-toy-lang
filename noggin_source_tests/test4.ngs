@@ -1,18 +1,18 @@
 # test4.ngs
 
-function empty() { }
+function void empty() { }
 
-function oneAssignment() {
+function void oneAssignment() {
 	s = 1;
 }
 
-function arguments(int a, bool b, double c, var d) {
+function void arguments(int a, bool b, double c, var d) {
 	a = b;
 	# comment in the middle of two statements
 	c = d;
 }
 
-function word (int one ,int two ) {
+function void word (int one ,int two ) {
 	declare int seven;
 	seven = two + one ;
 	do {
@@ -21,7 +21,7 @@ function word (int one ,int two ) {
 	# comment at end of statements
 }
 
-function hello() {
+function void hello() {
 	if (this) {
 		perform(something);
 	} else {
@@ -29,7 +29,7 @@ function hello() {
 	}
 }
 
-function empty() {
+function int empty() {
 	while (something) {
 		m(56);
 	}
