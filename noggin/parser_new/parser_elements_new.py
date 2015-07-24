@@ -193,10 +193,7 @@ class AssignmentStatement(Statement):
         else:
             raise ParserException(Parser.get_token(), IdentToken)
 
-        if isinstance(Parser.get_token(), AssignToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), AssignToken)
+        expect_token(AssignToken)
 
         try:
             staticExpression = Expression.parse()
@@ -204,10 +201,7 @@ class AssignmentStatement(Statement):
             print("Caught " + str(e) + " while parsing AssignmentStatement expression")
             raise e
 
-        if isinstance(Parser.get_token(), SemiColonToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), SemiColonToken)
+        expect_token(SemiColonToken)
 
         return AssignmentStatement(staticIdent, staticExpression)
 
@@ -250,10 +244,7 @@ class Declare(Statement):
         staticTypeAndName = None
         staticValue = None
 
-        if isinstance(Parser.get_token(), DeclareToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), DeclareToken)
+        expect_token(DeclareToken)
 
         try:
             staticTypeAndName = TypeAndName.parse()
@@ -270,10 +261,7 @@ class Declare(Statement):
                 print("Caught " + str(e) + " while parsing Declare value")
                 raise e
 
-        if isinstance(Parser.get_token(), SemiColonToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), SemiColonToken)
+        expect_token(SemiColonToken)
 
         return Declare(staticTypeAndName, staticValue)
 
@@ -360,15 +348,9 @@ class DoWhileStatement(Statement):
         staticDoStatements = None
         staticWhileExpression = None
 
-        if isinstance(Parser.get_token(), DoToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), DoToken)
+        expect_token(DoToken)
 
-        if isinstance(Parser.get_token(), LeftBraceToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), LeftBraceToken)
+        expect_token(LeftBraceToken)
 
         try:
             staticDoStatements = Statements.parse()
@@ -376,20 +358,11 @@ class DoWhileStatement(Statement):
             print("Caught " + str(e) + " while parsing DoWhileStatment do statements")
             raise e
 
-        if isinstance(Parser.get_token(), RightBraceToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), RightBraceToken)
+        expect_token(RightBraceToken)
 
-        if isinstance(Parser.get_token(), WhileToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), WhileToken)
+        expect_token(WhileToken)
 
-        if isinstance(Parser.get_token(), LeftParenToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), LeftParenToken)
+        expect_token(LeftParenToken)
 
         try:
             staticWhileExpression = Expression.parse()
@@ -397,10 +370,7 @@ class DoWhileStatement(Statement):
             print("Caught " + str(e) + " while parsing DoWhileStatement while expression")
             raise e
 
-        if isinstance(Parser.get_token(), RightParenToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), RightParenToken)
+        expect_token(RightParenToken)
 
         return DoWhileStatement(staticDoStatements, staticWhileExpression)
 
@@ -421,20 +391,14 @@ class Function:
         staticFunctionDeclareArguments = None
         staticStatements = None
 
-        if isinstance(Parser.get_token(), FunctionToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), FunctionToken)
+        expect_token(FunctionToken)
 
         if isinstance(Parser.get_token(), IdentToken):
             staticFunctionTypeAndName = TypeAndName.parse()
         else:
             raise ParserException(Parser.get_token(), IdentToken)
 
-        if isinstance(Parser.get_token(), LeftParenToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), LeftParenToken)
+        expect_token(LeftParenToken)
 
         try:
             staticFunctionDeclareArguments = FunctionDeclareArguments.parse()
@@ -442,15 +406,9 @@ class Function:
             print("Caught " + str(e) + " while parsing Function declare arguments")
             raise e
 
-        if isinstance(Parser.get_token(), RightParenToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), RightParenToken)
+        expect_token(RightParenToken)
 
-        if isinstance(Parser.get_token(), LeftBraceToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), LeftBraceToken)
+        expect_token(LeftBraceToken)
 
         try:
             staticStatements = Statements.parse()
@@ -458,10 +416,7 @@ class Function:
             print("Caught " + str(e) + " while parsing Function statements")
             raise e
 
-        if isinstance(Parser.get_token(), RightBraceToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), RightBraceToken)
+        expect_token(RightBraceToken)
 
         return Function(staticFunctionTypeAndName, staticFunctionDeclareArguments, staticStatements)
 
@@ -484,10 +439,7 @@ class FunctionCallStatement(Statement):
         else:
             raise ParserException(Parser.get_token(), IdentToken)
 
-        if isinstance(Parser.get_token(), LeftParenToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), LeftParenToken)
+        expect_token(LeftParenToken)
 
         try:
             staticCallArguments = CallArguments.parse()
@@ -495,15 +447,9 @@ class FunctionCallStatement(Statement):
             print("Caught " + str(e) + " while parsing FunctionCallStatement call arguments")
             raise e
 
-        if isinstance(Parser.get_token(), RightParenToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), RightParenToken)
+        expect_token(RightParenToken)
 
-        if isinstance(Parser.get_token(), SemiColonToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), SemiColonToken)
+        expect_token(SemiColonToken)
 
         return FunctionCallStatement(staticIdent, staticCallArguments)
 
@@ -520,10 +466,7 @@ class IfElseStatement(Statement):
         staticIfThens = []
         staticElseStatements = None
 
-        if isinstance(Parser.get_token(), IfToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), IfToken)
+        expect_token(IfToken)
 
         try:
             staticFirstIf = IfThen.parse()
@@ -548,10 +491,7 @@ class IfElseStatement(Statement):
         else:
             raise ParserException(Parser.get_token(), ElseToken)
 
-        if isinstance(Parser.get_token(), LeftBraceToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), LeftBraceToken)
+        expect_token(LeftBraceToken)
 
         try:
             staticThenStatements = Statements.parse()
@@ -559,10 +499,7 @@ class IfElseStatement(Statement):
             print("Caught " + str(e) + " while parsing IfElseStatement then statements")
             raise e
 
-        if isinstance(Parser.get_token(), RightBraceToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), RightBraceToken)
+        expect_token(RightBraceToken)
 
         return IfElseStatement(staticIfThens, staticElseStatements)
 
@@ -579,10 +516,7 @@ class IfThen:
         staticCondition = None
         staticThen = None
 
-        if isinstance(Parser.get_token(), LeftParenToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), LeftParenToken)
+        expect_token(LeftParenToken)
 
         try:
             staticCondition = Expression.parse()
@@ -590,15 +524,9 @@ class IfThen:
             print("Caught " + str(e) + " while parsing IfThen condition")
             raise e
 
-        if isinstance(Parser.get_token(), RightParenToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), RightParenToken)
+        expect_token(RightParenToken)
 
-        if isinstance(Parser.get_token(), LeftBraceToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), LeftBraceToken)
+        expect_token(LeftBraceToken)
 
         try:
             staticThen = Statements.parse()
@@ -606,10 +534,7 @@ class IfThen:
             print("Caught " + str(e) + " while parsing IfThen statements")
             raise e
 
-        if isinstance(Parser.get_token(), RightBraceToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), RightBraceToken)
+        expect_token(RightBraceToken)
 
 class Program:
     functions = []
@@ -644,10 +569,7 @@ class Return:
     def parse():
         staticExpression = None
 
-        if isinstance(Parser.get_token(), ReturnToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), ReturnToken)
+        expect_token(ReturnToken)
 
         try:
             staticExpression = Expression.parse()
@@ -655,10 +577,7 @@ class Return:
             print("Caught " + str(e) + " while parsing Return expression")
             raise e
 
-        if isinstance(Parser.get_token(), SemiColonToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), SemiColonToken)
+        expect_token(SemiColonToken)
 
         return Return(staticExpression)
 
@@ -793,15 +712,9 @@ class WhileStatement(Statement):
         staticWhileExpression = None
         staticDoStatements = None
 
-        if isinstance(Parser.get_token(), WhileToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), WhileToken)
+        expect_token(WhileToken)
 
-        if isinstance(Parser.get_token(), LeftParenToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), LeftParenToken)
+        expect_token(LeftParenToken)
 
         try:
             staticWhileExpression = Expression.parse()
@@ -809,15 +722,9 @@ class WhileStatement(Statement):
             print("Caught " + str(e) + " while parsing WhileStatement while expression")
             raise e
 
-        if isinstance(Parser.get_token(), RightParenToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), RightParenToken)
+        expect_token(RightParenToken)
 
-        if isinstance(Parser.get_token(), LeftBraceToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), LeftBraceToken)
+        expect_token(LeftBraceToken)
 
         try:
             staticDoStatements = Statements.parse()
@@ -825,9 +732,6 @@ class WhileStatement(Statement):
             print("Caught " + str(e) + " while parsing WhileStatement statements")
             raise e
 
-        if isinstance(Parser.get_token(), RightBraceToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), RightBraceToken)
+        expect_token(RightBraceToken)
 
         return WhileStatement(staticWhileExpression, staticDoStatements)
