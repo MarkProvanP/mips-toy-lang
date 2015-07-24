@@ -1,6 +1,7 @@
 import sys
 import lexer.tokens
 from lexer.tokens import *
+import string
 
 class Lexer:
 
@@ -10,7 +11,7 @@ class Lexer:
     tokenStartCharNo = 0
     tokenEndCharNo = 0
 
-    printVerbose = False
+    printVerbose = True
 
     firstCharacterRead = False
     c = ''
@@ -62,29 +63,31 @@ class Lexer:
             Lexer.firstCharacterRead = True
             Lexer.c = Lexer.get_char()
 
-        while Lexer.c == ' ' or Lexer.c == '\t' or Lexer.c == '\r' or Lexer.c == '\n':
-            if Lexer.printVerbose:
-                print("Skipping over whitespace character")
-            if Lexer.check_for_new_line():
-                pass
-            elif Lexer.c == ' ' or Lexer.c == '\t':
-                Lexer.currentCharNo += 1
+        while Lexer.isCharWhitespace(Lexer.c) or Lexer.c == '#':
+            if Lexer.isCharWhitespace(Lexer.c):
+                if Lexer.printVerbose:
+                    print("Skipping over whitespace character")
+                if Lexer.check_for_new_line():
+                    pass
+                elif Lexer.c == ' ' or Lexer.c == '\t':
+                    Lexer.currentCharNo += 1
+                    Lexer.c = Lexer.get_char()
+            if Lexer.c == '#':
+                # Then we have a comment for the rest of this line
+                if Lexer.printVerbose:
+                    print("Found a comment!")
                 Lexer.c = Lexer.get_char()
-
-        while Lexer.c == '#':
-            # Then we have a comment for the rest of this line
-            if Lexer.printVerbose:
-                print("Found a comment!")
-            Lexer.c = Lexer.get_char()
-            comment = ""
-            while Lexer.c != '\n':
-                comment += Lexer.c
-                Lexer.c = Lexer.get_char()
-            if Lexer.printVerbose:
-                print("Complete comment: %s" % comment)
-            Lexer.advance_line()
+                comment = ""
+                while Lexer.c != '\n':
+                    comment += Lexer.c
+                    Lexer.c = Lexer.get_char()
+                if Lexer.printVerbose:
+                    print("Complete comment: %s" % comment)
+                Lexer.advance_line()
 
         if Lexer.c is None:
+            if Lexer.printVerbose:
+                print("Lexer.c is None, reached end")
             return None
 
         if Lexer.c.isalpha():
@@ -131,6 +134,8 @@ class Lexer:
             return ForToken(s, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
         elif s == 'return':
             return ReturnToken(s, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
+        elif s == 'declare':
+            return DeclareToken(s, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
         else:
             return IdentToken(s, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
 
@@ -183,3 +188,11 @@ class Lexer:
     @staticmethod
     def isCharSecondPunctuation(c):
         return c == '='
+
+    @staticmethod
+    def isCharWhitespace(c):
+        whitespace = string.whitespace
+        if whitespace.find(str(c)) == -1:
+            return False
+        else:
+            return True

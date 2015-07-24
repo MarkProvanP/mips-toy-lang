@@ -8,14 +8,17 @@ function oneAssignment() {
 
 function arguments(a, b, c, d) {
 	a = b;
+	# comment in the middle of two statements
 	c = d;
 }
 
 function word ( one , two ) {
+	declare int seven;
 	seven = two + one ;
 	do {
 		word (2+5, 4);
 	} while (derp == i)
+	# comment at end of statements
 }
 
 function hello() {

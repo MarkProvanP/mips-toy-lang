@@ -21,6 +21,8 @@ class Statement:
                 return WhileStatement.parse()
             elif isinstance(Parser.get_token(), ReturnToken):
                 return Return.parse()
+            elif isinstance(Parser.get_token(), DeclareToken):
+                return Declare.parse()
             else:
                 raise ParserException(Parser.get_token(), "StatementStartingToken")
         except ParserException as e:
@@ -132,6 +134,43 @@ class CallArguments:
             staticCallExpressions.append(Expression.parse())
 
         return CallArguments(staticCallExpressions)
+
+class Declare(Statement):
+    valueType = None
+    valueName = None
+
+    def __init__(self, valueType, valueName):
+        self.valueType = valueType
+        self.valueName = valueName
+
+    @staticmethod
+    def parse():
+        staticValueType = None
+        staticValueName = None
+
+        if isinstance(Parser.get_token(), DeclareToken):
+            Parser.advance_token()
+        else:
+            raise ParserException(Parser.get_token(), DeclareToken)
+
+        if isinstance(Parser.get_token(), IdentToken):
+            staticValueType = Ident(Parser.get_token())
+            Parser.advance_token()
+        else:
+            raise ParserException(Parser.get_token(), IdentToken)
+
+        if isinstance(Parser.get_token(), IdentToken):
+            staticValueName = Ident(Parser.get_token())
+            Parser.advance_token()
+        else:
+            raise ParserException(Parser.get_token(), IdentToken)
+
+        if isinstance(Parser.get_token(), SemiColonToken):
+            Parser.advance_token()
+        else:
+            raise ParserException(Parser.get_token(), SemiColonToken)
+
+        return Declare(staticValueType, staticValueName)
 
 class DefineArguments:
     defineArguments = []

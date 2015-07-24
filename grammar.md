@@ -27,7 +27,8 @@ statement ::=
 	ifelse
 	while
 	dowhile
-	return ;
+	return
+	declare ;
 
 functioncall ::=
 	ident '(' callarguments ')' ';' ;
@@ -50,6 +51,9 @@ dowhile ::=
 
 return ::=
 	"RETURN" expression ';' ;
+
+declare ::=
+	"DECLARE" ident ident ';' ;
 
 expression ::=
 	primary-expression

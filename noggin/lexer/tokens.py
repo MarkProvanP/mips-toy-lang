@@ -41,6 +41,11 @@ class CommaToken(Token):
     def __init__(self, original = ",", lineNo = uln, charStart = ucs, charEnd = uce):
         super(CommaToken, self).__init__(original, lineNo, charStart, charEnd)
 
+class DeclareToken(Token):
+    def __init__(self, original = "declare", lineNo = uln, charStart = ucs, charEnd = uce):
+        super(DeclareToken, self).__init__(original, lineNo, charStart, charEnd)
+StatementStartingTokens.append(DeclareToken)
+
 class DoToken(Token):
     def __init__(self, original = "do", lineNo = uln, charStart = ucs, charEnd = uce):
         super(DoToken, self).__init__(original, lineNo, charStart, charEnd)
