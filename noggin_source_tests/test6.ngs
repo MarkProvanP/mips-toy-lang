@@ -1,0 +1,23 @@
+# test6.ngs
+# this should test all the different operators
+
+function hello() {
+  declare int a;
+  declare int b;
+  a = 1 + 2;
+  a = a - 4;
+  a = a * a;
+  a = 4 / a;
+  b = 10;
+  if(a > b) {
+    doSomething();
+  } else {
+    doSomethingElse();
+  }
+  declare int c;
+  c = a * b / 4 + 3 - 4;
+  declare bool d;
+  declare bool e;
+  d = a >= b;
+  e = c != a;
+}

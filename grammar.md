@@ -12,11 +12,14 @@ program ::=
 	{ function } ;
 
 function ::=
-	"FUNCTION" ident '(' definearguments ')' '{' statements '}' ;
+	"FUNCTION" ident '(' functiondeclarearguments ')' '{' statements '}' ;
 
-definearguments ::=
+functiondeclarearguments ::=
 	ε
-	ident { ',' ident } ;
+	typeandname { ',' typeandname } ;
+
+typeandname ::=
+	ident ident
 
 statements ::=
 	{ statement } ;
@@ -53,7 +56,7 @@ return ::=
 	"RETURN" expression ';' ;
 
 declare ::=
-	"DECLARE" ident ident ';' ;
+	"DECLARE" typeandname ';' ;
 
 expression ::=
 	primary-expression

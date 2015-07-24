@@ -136,6 +136,30 @@ class CallArguments:
         return CallArguments(staticCallExpressions)
 
 class Declare(Statement):
+    typeAndName = None
+
+    def __init__(self, typeAndName):
+        self.typeAndName = typeAndName
+
+    @staticmethod
+    def parse():
+        staticTypeAndName = None
+
+        if isinstance(Parser.get_token(), DeclareToken):
+            Parser.advance_token()
+        else:
+            raise ParserException(Parser.get_token(), DeclareToken)
+
+        staticTypeAndName = TypeAndName.parse()
+
+        if isinstance(Parser.get_token(), SemiColonToken):
+            Parser.advance_token()
+        else:
+            raise ParserException(Parser.get_token(), SemiColonToken)
+
+        return Declare(staticTypeAndName)
+
+class TypeAndName:
     valueType = None
     valueName = None
 
@@ -147,11 +171,6 @@ class Declare(Statement):
     def parse():
         staticValueType = None
         staticValueName = None
-
-        if isinstance(Parser.get_token(), DeclareToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), DeclareToken)
 
         if isinstance(Parser.get_token(), IdentToken):
             staticValueType = Ident(Parser.get_token())
@@ -165,14 +184,9 @@ class Declare(Statement):
         else:
             raise ParserException(Parser.get_token(), IdentToken)
 
-        if isinstance(Parser.get_token(), SemiColonToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), SemiColonToken)
+        return TypeAndName(staticValueType, staticValueName)
 
-        return Declare(staticValueType, staticValueName)
-
-class DefineArguments:
+class FunctionDeclareArguments:
     defineArguments = []
 
     def __init__(self, defineArguments):
@@ -180,26 +194,26 @@ class DefineArguments:
 
     @staticmethod
     def parse():
-        staticDefineArguments = []
+        staticFunctionDeclareArguments = []
 
         if isinstance(Parser.get_token(), IdentToken):
-            staticDefineArguments.append(Ident(Parser.get_token()))
-            Parser.advance_token()
+            staticTypeAndName = TypeAndName.parse()
+            staticFunctionDeclareArguments.append(staticTypeAndName)
         elif isinstance(Parser.get_token(), RightParenToken):
-            return DefineArguments(staticDefineArguments)
+            return FunctionDeclareArguments(staticFunctionDeclareArguments)
         else:
-            raise ParserException(Parser.get_token(), "DefineArgumentsContinueToken")
+            raise ParserException(Parser.get_token(), "FunctionDeclareArgumentsContinueToken")
 
         while isinstance(Parser.get_token(), CommaToken):
             Parser.advance_token()
 
             if isinstance(Parser.get_token(), IdentToken):
-                staticDefineArguments.append(Ident(Parser.get_token()))
-                Parser.advance_token()
+                staticTypeAndName = TypeAndName.parse()
+                staticFunctionDeclareArguments.append(staticTypeAndName)
             else:
                 raise ParserException(Parser.get_token(), IdentToken)
 
-        return DefineArguments(staticDefineArguments)
+        return FunctionDeclareArguments(staticFunctionDeclareArguments)
 
 class DoWhileStatement(Statement):
     doStatements = None
@@ -253,18 +267,18 @@ class DoWhileStatement(Statement):
 
 class Function:
     functionName = None
-    functionDefineArguments = None
+    functionDeclareArguments = None
     statements = None
 
-    def __init__(self, functionName, functionDefineArguments, statements):
+    def __init__(self, functionName, functionDeclareArguments, statements):
         self.functionName = functionName
-        self.functionDefineArguments = functionDefineArguments
+        self.functionDeclareArguments = functionDeclareArguments
         self.statements = statements
 
     @staticmethod
     def parse():
         staticFunctionName = None
-        staticFunctionDefineArguments = None
+        staticFunctionDeclareArguments = None
         staticStatements = None
 
         # If a function is being parsed, then we already have a function token
@@ -282,7 +296,7 @@ class Function:
         else:
             raise ParserException(Parser.get_token(), LeftParenToken)
 
-        staticFunctionDefineArguments = DefineArguments.parse()
+        staticFunctionDeclareArguments = FunctionDeclareArguments.parse()
 
         if isinstance(Parser.get_token(), RightParenToken):
             Parser.advance_token()
@@ -301,7 +315,7 @@ class Function:
         else:
             raise ParserException(Parser.get_token(), RightBraceToken)
 
-        return Function(staticFunctionName, staticFunctionDefineArguments, staticStatements)
+        return Function(staticFunctionName, staticFunctionDeclareArguments, staticStatements)
 
 class FunctionCallStatement(Statement):
     ident = None

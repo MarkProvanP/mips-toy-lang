@@ -6,13 +6,13 @@ function oneAssignment() {
 	s = 1;
 }
 
-function arguments(a, b, c, d) {
+function arguments(int a, bool b, double c, var d) {
 	a = b;
 	# comment in the middle of two statements
 	c = d;
 }
 
-function word ( one , two ) {
+function word (int one ,int two ) {
 	declare int seven;
 	seven = two + one ;
 	do {
