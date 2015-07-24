@@ -7,4 +7,5 @@ function hello() {
 
 function tw() {
   h=1+1;
+  return 1;
 }

@@ -10,7 +10,7 @@ class Lexer:
     tokenStartCharNo = 0
     tokenEndCharNo = 0
 
-    printVerbose = True
+    printVerbose = False
 
     firstCharacterRead = False
     c = ''
@@ -98,12 +98,16 @@ class Lexer:
                 Lexer.continue_lexing_type()
             return Lexer.makeNumToken(Lexer.string)
         elif Lexer.isCharPunctuation(Lexer.c):
+            if Lexer.printVerbose:
+                print("Looking at punctuation character: " + Lexer.c)
             Lexer.tokenStartCharNo = Lexer.currentCharNo
             if Lexer.isCharSinglePunctuation(Lexer.c):
+                if Lexer.printVerbose:
+                    print("Punctuation is singleton")
                 Lexer.continue_lexing_type()
             else:
                 Lexer.string += Lexer.c
-                Lexer.c = get_char()
+                Lexer.c = Lexer.get_char()
                 if Lexer.isCharSecondPunctuation(Lexer.c):
                     Lexer.continue_lexing_type()
             return Lexer.makePunctuationToken(Lexer.string)
@@ -125,6 +129,8 @@ class Lexer:
             return WhileToken(s, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
         elif s == 'for':
             return ForToken(s, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
+        elif s == 'return':
+            return ReturnToken(s, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
         else:
             return IdentToken(s, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
 
@@ -172,7 +178,7 @@ class Lexer:
 
     @staticmethod
     def isCharSinglePunctuation(c):
-        return c == '{' or c == '}' or c == ',' or c == '(' or c == ')' or c == ';' or c == '*' or '/'
+        return c == '{' or c == '}' or c == ',' or c == '(' or c == ')' or c == ';' or c == '*' or c == '/'
 
     @staticmethod
     def isCharSecondPunctuation(c):

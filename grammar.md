@@ -26,7 +26,8 @@ statement ::=
 	assignment
 	ifelse
 	while
-	dowhile ;
+	dowhile
+	return ;
 
 functioncall ::=
 	ident '(' callarguments ')' ';' ;
@@ -39,13 +40,16 @@ assignment ::=
 	ident '=' expression ';' ;
 
 ifelse ::=
-	"IF" '(' expression ')' '{' statements '}' "ELSE" '{' statements '}' ';' ;
+	"IF" '(' expression ')' '{' statements '}' "ELSE" '{' statements '}' ;
 
 while ::=
-	"WHILE" '(' expression ')' '{' statements '}' ';' ;
+	"WHILE" '(' expression ')' '{' statements '}' ;
 
 dowhile ::=
 	"DO" '{' statements '}' "WHILE" '(' expression ')' ';' ;
+
+return ::=
+	"RETURN" expression ';' ;
 
 expression ::=
 	primary-expression

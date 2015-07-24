@@ -105,6 +105,11 @@ class OperatorToken(Token):
                 or self.original == ">=" or self.original == "<=":
             return 2
 
+class ReturnToken(Token):
+    def __init__(self, original = "return", lineNo = uln, charStart = ucs, charEnd = uce):
+        super(ReturnToken, self).__init__(original, lineNo, charStart, charEnd)
+StatementStartingTokens.append(ReturnToken)
+
 class RightBraceToken(Token):
     def __init__(self, original = "]", lineNo = uln, charStart = ucs, charEnd = uce):
         super(RightBraceToken, self).__init__(original, lineNo, charStart, charEnd)

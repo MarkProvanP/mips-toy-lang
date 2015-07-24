@@ -1,7 +1,9 @@
+# test4.ngs
+
 function empty() { }
 
 function oneAssignment() {
-	s = 1
+	s = 1;
 }
 
 function arguments(a, b, c, d) {
@@ -13,7 +15,7 @@ function word ( one , two ) {
 	seven = two + one ;
 	do {
 		word (2+5, 4);
-	} while (derp == i);
+	} while (derp == i)
 }
 
 function hello() {
@@ -21,11 +23,12 @@ function hello() {
 		perform(something);
 	} else {
 		myvar = 9;
-	};
+	}
 }
 
 function empty() {
 	while (something) {
 		m(56);
-	} ;
+	}
+	return hello;
 }

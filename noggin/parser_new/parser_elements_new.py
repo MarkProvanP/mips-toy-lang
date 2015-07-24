@@ -19,6 +19,8 @@ class Statement:
                 return DoWhileStatement.parse()
             elif isinstance(Parser.get_token(), WhileToken):
                 return WhileStatement.parse()
+            elif isinstance(Parser.get_token(), ReturnToken):
+                return Return.parse()
             else:
                 raise ParserException(Parser.get_token(), "StatementStartingToken")
         except ParserException as e:
@@ -207,11 +209,6 @@ class DoWhileStatement(Statement):
         else:
             raise ParserException(Parser.get_token(), RightParenToken)
 
-        if isinstance(Parser.get_token(), SemiColonToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), SemiColonToken)
-
         return DoWhileStatement(staticDoStatements, staticWhileExpression)
 
 
@@ -373,11 +370,6 @@ class IfElseStatement(Statement):
         else:
             raise ParserException(Parser.get_token(), RightBraceToken)
 
-        if isinstance(Parser.get_token(), SemiColonToken):
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), SemiColonToken)
-
         return IfElseStatement(staticIfExpression, staticThenStatements, staticElseStatements)
 
 class Number(PrimaryExpression):
@@ -406,7 +398,29 @@ class Program:
 
         return Program(staticFunctions)
 
+class Return:
+    expression = None
 
+    def __init__(self, expression):
+        self.expression = expression
+
+    @staticmethod
+    def parse():
+        staticExpression = None
+
+        if isinstance(Parser.get_token(), ReturnToken):
+            Parser.advance_token()
+        else:
+            raise ParserException(Parser.get_token(), ReturnToken)
+
+        staticExpression = Expression.parse()
+
+        if isinstance(Parser.get_token(), SemiColonToken):
+            Parser.advance_token()
+        else:
+            raise ParserException(Parser.get_token(), SemiColonToken)
+
+        return Return(staticExpression)
 
 class Statements:
     statements = []
