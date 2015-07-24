@@ -408,6 +408,9 @@ class IfElseStatement(Statement):
 
         if isinstance(Parser.get_token(), ElseToken):
             Parser.advance_token()
+        elif Statement.able_to_start():
+            # If this is just an 'if' with no 'else'
+            return IfElseStatement(staticIfExpression, staticThenStatements, None)
         else:
             raise ParserException(Parser.get_token(), ElseToken)
 

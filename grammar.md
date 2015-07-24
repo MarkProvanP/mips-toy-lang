@@ -44,6 +44,7 @@ assignment ::=
 	ident '=' expression ';' ;
 
 ifelse ::=
+	"IF" '(' expression ')' '{' statements '}'
 	"IF" '(' expression ')' '{' statements '}' "ELSE" '{' statements '}' ;
 
 while ::=

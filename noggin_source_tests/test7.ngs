@@ -1,0 +1,6 @@
+function testIf(int a) {
+  if (a < 5) {
+    print(hello);
+  }
+  return a;
+}
