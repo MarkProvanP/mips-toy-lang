@@ -52,6 +52,10 @@ class DoToken(Token):
 
 StatementStartingTokens.append(DoToken)
 
+class ElifToken(Token):
+    def __init__(self, original = "elif", lineNo = uln, charStart = ucs, charEnd = uce):
+        super(ElifToken, self).__init__(original, lineNo, charStart, charEnd)
+
 class ElseToken(Token):
     def __init__(self, original = "else", lineNo = uln, charStart = ucs, charEnd = uce):
         super(ElseToken, self).__init__(original, lineNo, charStart, charEnd)

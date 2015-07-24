@@ -4,3 +4,33 @@ function testIf(int a) {
   }
   return a;
 }
+
+function testIfElse(bool b) {
+  if (b * 3 == 6) {
+    print(hello);
+  } else {
+    print(no);
+  }
+}
+
+function testIfElif(int a) {
+  if (a / 32 == 1) {
+    print(a);
+  } elif (a / 14 == 2) {
+    print(no);
+  }
+}
+
+function testIfElifElse(bool c) {
+  if (condition) {
+    doSomething();
+  } elif (otherCondition) {
+    doAnotherThing();
+  } else {
+    doSomethingElse();
+  }
+}
+
+function testMultipleElifs() {
+  if(c) {} elif (d){doSomething();} elif(condition) {anotherThing();} else { derp(); }
+}

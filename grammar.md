@@ -44,8 +44,11 @@ assignment ::=
 	ident '=' expression ';' ;
 
 ifelse ::=
-	"IF" '(' expression ')' '{' statements '}'
+	"IF" '(' expression ')' '{' statements '}' { elif }
 	"IF" '(' expression ')' '{' statements '}' "ELSE" '{' statements '}' ;
+
+elif ::=
+	"ELIF" '(' expression ')' '{' statements '}'
 
 while ::=
 	"WHILE" '(' expression ')' '{' statements '}' ;
