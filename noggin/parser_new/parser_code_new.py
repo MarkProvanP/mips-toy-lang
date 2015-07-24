@@ -1,4 +1,4 @@
-print("start of parser_code")
+from lexer import tokens
 
 class Parser:
     tokenList = []
@@ -23,7 +23,20 @@ class Parser:
         Parser.tokenList = ts
         Parser.tokenPosition = 0
 
+    @staticmethod
+    def get_relative_token(n):
+        newTokenPosition = Parser.tokenPosition + n
+        if len(Parser.tokenList) > newTokenPosition:
+            return Parser.tokenList[newTokenPosition]
+        else:
+            return EOIToken()
+
+
 class ParserException(Exception):
     def __init__(self, token, expected):
         self.token = token
         self.expected = expected
+
+    def __str__(self):
+        return "Parser Exception: expected " + str(self.expected.__name__) \
+            + " but got " + str(self.token)

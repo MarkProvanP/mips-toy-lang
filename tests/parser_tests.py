@@ -1,7 +1,7 @@
 from nose.tools import *
 
 from noggin.lexer.tokens import *
-from noggin.parser.parser_code import Parser
+from noggin.parser_new.parser_code_new import Parser
 
 def setup():
     print("Setting up parser tests")

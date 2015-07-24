@@ -15,10 +15,8 @@ class Lexer:
     def get_char_stdin():
         char = sys.stdin.read(1)
         if len(char) > 0:
-            print("Read character: " + char + ", ord: " + str(ord(char)) + "\n")
             return char
         else:
-            print("Reached end of input")
             return None
 
     get_char = get_char_stdin
@@ -42,10 +40,7 @@ class Lexer:
         if Lexer.c is None:
             return None
 
-        print("Lexing character: " + Lexer.c)
-
         if Lexer.c.isalpha():
-            print("Is alpha")
             Lexer.tokenStartCharNo = Lexer.currentCharNo
             while Lexer.c.isalpha() or Lexer.c.isdigit():
                 string += Lexer.c
@@ -57,7 +52,6 @@ class Lexer:
                     Lexer.currentCharNo = 1
             return Lexer.makeWordToken(string)
         elif Lexer.c.isdigit():
-            print("Is digit")
             Lexer.tokenStartCharNo = Lexer.currentCharNo
             while Lexer.c.isdigit():
                 string += Lexer.c
@@ -69,11 +63,9 @@ class Lexer:
                     Lexer.currentCharNo = 1
             return Lexer.makeNumToken(string)
         elif Lexer.isCharPunctuation(Lexer.c):
-            print("Is punctuation")
             string += Lexer.c
             Lexer.tokenStartCharNo = Lexer.currentCharNo
             if Lexer.isCharSinglePunctuation(Lexer.c):
-                print("Is single punctuation")
                 Lexer.c = Lexer.get_char()
                 Lexer.tokenEndCharNo = Lexer.currentCharNo
                 Lexer.currentCharNo += 1
@@ -83,7 +75,6 @@ class Lexer:
             else:
                 Lexer.c = get_char()
                 if Lexer.isCharSecondPunctuation(Lexer.c):
-                    print("Is second punctuation")
                     string += Lexer.c
                     Lexer.c = get_char()
                     Lexer.tokenEndCharNo = Lexer.currentCharNo
@@ -96,7 +87,6 @@ class Lexer:
 
     @staticmethod
     def makeWordToken(s):
-        print("Making word token from: " + s)
         if s == 'function':
             return FunctionToken(s, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
         elif s == 'if':
@@ -114,12 +104,10 @@ class Lexer:
 
     @staticmethod
     def makeNumToken(s):
-        print("Making num token from: " + s)
         return NumberToken(s, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
 
     @staticmethod
     def makePunctuationToken(s):
-        print("Making punctuation token from: " + s)
         if s == ';':
             return SemiColonToken(s, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
         elif s == '=':

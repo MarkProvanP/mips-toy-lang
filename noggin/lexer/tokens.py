@@ -18,6 +18,9 @@ class Token(object):
         self.charStart = charStart
         self.charEnd = charEnd
 
+    def __str__(self):
+        return self.get_info()
+
     def get_precedence(self):
         return 0
 
@@ -90,6 +93,17 @@ class NumberToken(Token):
 class OperatorToken(Token):
     def __init__(self, original, lineNo = uln, charStart = ucs, charEnd = uce):
         super(OperatorToken, self).__init__(original, lineNo, charStart, charEnd)
+
+    def get_precedence(self):
+        if self.original == "+" or self.original == "-":
+            return 3
+        elif self.original == "*" or self.original == "/":
+            return 4
+        elif self.original == "==" or self.original == "!=":
+            return 1
+        elif self.original == ">" or self.original == "<"\
+                or self.original == ">=" or self.original == "<=":
+            return 2
 
 class RightBraceToken(Token):
     def __init__(self, original = "]", lineNo = uln, charStart = ucs, charEnd = uce):
