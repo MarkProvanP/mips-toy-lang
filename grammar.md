@@ -74,8 +74,8 @@ binary-expression ::=
 	expression operator expression ;
 
 operator ::=
-	'+' | '-' | '*' | '/' |
-	'==' | '!=' | '>' | '<' | '<=' | '>=' ;
+	`'+' | '-' | '*' | '/' |
+	'==' | '!=' | '>' | '<' | '<=' | '>=' ;`
 
 ident ::=
 	letter { letter | digit } ;
