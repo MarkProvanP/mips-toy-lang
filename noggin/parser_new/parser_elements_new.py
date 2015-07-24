@@ -2,6 +2,81 @@ from lexer.tokens import *
 
 from parser_new.parser_code_new import Parser, ParserException
 
+class Expression:
+    @staticmethod
+    def parse():
+        return Expression.fraser_hanson(1)
+
+    @staticmethod
+    def fraser_hanson(k):
+
+        i = 0
+        left = None
+        operator = None
+        right = None
+        left = PrimaryExpression.parse()
+
+        i = Parser.get_token().get_precedence()
+        while i >= k:
+            while Parser.get_token().get_precedence() == i:
+                operator = Parser.get_token()
+                Parser.advance_token()
+                right = Expression.fraser_hanson(i + 1)
+                left = BinaryExpression(left, operator, right)
+            i -= 1
+        return left
+
+class PrimaryExpression(Expression):
+    @staticmethod
+    def parse():
+        staticPrimaryExpression = None
+        if isinstance(Parser.get_token(), NumberToken):
+            staticPrimaryExpression = Number(Parser.get_token())
+            Parser.advance_token()
+        elif isinstance(Parser.get_token(), IdentToken):
+            staticPrimaryExpression = Ident(Parser.get_token())
+            Parser.advance_token()
+        elif isinstance(Parser.get_token(), BoolToken):
+            staticPrimaryExpression = Bool(Parser.get_token())
+            Parser.advance_token()
+        else:
+            raise ParserException(Parser.get_token(), PrimaryExpression)
+        return staticPrimaryExpression
+
+    def eval(self):
+        return None
+
+class BinaryExpression(Expression):
+    left = None
+    operator = None
+    right = None
+
+    def __init__(self, left, operator, right):
+        self.left = left
+        self.operator = operator
+        self.right = right
+
+class Bool(PrimaryExpression):
+    value = None
+
+    def __init__(self, value):
+        self.value = value
+
+    def eval(self):
+        return bool(self.value)
+
+class Ident(PrimaryExpression):
+    ident = None
+
+    def __init__(self, ident):
+        self.ident = ident
+
+class Number(PrimaryExpression):
+    number = None
+
+    def __init__(self, number):
+        self.number = number
+
 class Statement:
     @staticmethod
     def parse():
@@ -49,43 +124,6 @@ class Statement:
     def able_to_start():
         return type(Parser.get_token()) in StatementStartingTokens
 
-class Expression:
-    @staticmethod
-    def parse():
-        return Expression.fraser_hanson(1)
-
-    @staticmethod
-    def fraser_hanson(k):
-
-        i = 0
-        left = None
-        operator = None
-        right = None
-        left = PrimaryExpression.parse()
-
-        i = Parser.get_token().get_precedence()
-        while i >= k:
-            while Parser.get_token().get_precedence() == i:
-                operator = Parser.get_token()
-                Parser.advance_token()
-                right = Expression.fraser_hanson(i + 1)
-                left = BinaryExpression(left, operator, right)
-            i -= 1
-        return left
-
-class PrimaryExpression(Expression):
-    @staticmethod
-    def parse():
-        staticPrimaryExpression = None
-        if isinstance(Parser.get_token(), NumberToken):
-            staticPrimaryExpression = Number(Parser.get_token())
-            Parser.advance_token()
-        elif isinstance(Parser.get_token(), IdentToken):
-            staticPrimaryExpression = Ident(Parser.get_token())
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), PrimaryExpression)
-        return staticPrimaryExpression
 
 
 class AssignmentStatement(Statement):
@@ -124,16 +162,6 @@ class AssignmentStatement(Statement):
             raise ParserException(Parser.get_token(), SemiColonToken)
 
         return AssignmentStatement(staticIdent, staticExpression)
-
-class BinaryExpression(Expression):
-    left = None
-    operator = None
-    right = None
-
-    def __init__(self, left, operator, right):
-        self.left = left
-        self.operator = operator
-        self.right = right
 
 class CallArguments:
     callExpressions = []
@@ -405,12 +433,6 @@ class FunctionCallStatement(Statement):
 
         return FunctionCallStatement(staticIdent, staticCallArguments)
 
-class Ident(PrimaryExpression):
-    ident = None
-
-    def __init__(self, ident):
-        self.ident = ident
-
 class IfElseStatement(Statement):
     ifThens = []
     elseStatements = None
@@ -514,13 +536,6 @@ class IfThen:
             Parser.advance_token()
         else:
             raise ParserException(Parser.get_token(), RightBraceToken)
-
-class Number(PrimaryExpression):
-    number = None
-
-    def __init__(self, number):
-        self.number = number
-
 
 class Program:
     functions = []

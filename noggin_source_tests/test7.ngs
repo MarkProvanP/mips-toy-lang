@@ -22,7 +22,7 @@ function testIfElif(int a) {
 }
 
 function testIfElifElse(bool c) {
-  if (condition) {
+  if (false) {
     doSomething();
   } elif (otherCondition) {
     doAnotherThing();

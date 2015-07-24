@@ -33,6 +33,18 @@ class Token(object):
             self.charEnd
         )
 
+## Primary expressions, where the content of the Token is actually important
+
+class BoolToken(Token):
+    def __init__(self, original, lineNo = uln, charStart = ucs, charEnd = uce):
+        super(BoolToken, self).__init__(original, lineNo, charStart, charEnd)
+
+class NumberToken(Token):
+    def __init__(self, original, lineNo = uln, charStart = ucs, charEnd = uce):
+        super(NumberToken, self).__init__(original, lineNo, charStart, charEnd)
+
+# Other keywords and punctuation
+
 class AssignToken(Token):
     def __init__(self, original = "=", lineNo = uln, charStart = ucs, charEnd = uce):
         super(AssignToken, self).__init__(original, lineNo, charStart, charEnd)
@@ -95,10 +107,6 @@ class LeftSquareToken(Token):
     def __init__(self, original = "[", lineNo = uln, charStart = ucs, charEnd = uce):
         super(LeftSquareToken, self).__init__(original, lineNo, charStart, charEnd)
 
-class NumberToken(Token):
-    def __init__(self, original, lineNo = uln, charStart = ucs, charEnd = uce):
-        super(NumberToken, self).__init__(original, lineNo, charStart, charEnd)
-
 class OperatorToken(Token):
     def __init__(self, original, lineNo = uln, charStart = ucs, charEnd = uce):
         super(OperatorToken, self).__init__(original, lineNo, charStart, charEnd)
@@ -133,7 +141,7 @@ class RightSquareToken(Token):
         super(RightSquareToken, self).__init__(original, lineNo, charStart, charEnd)
 
 class SemiColonToken(Token):
-    def __init__(self, original, lineNo = uln, charStart = ucs, charEnd = uce):
+    def __init__(self, original = ";", lineNo = uln, charStart = ucs, charEnd = uce):
         super(SemiColonToken, self).__init__(original, lineNo, charStart, charEnd)
 
 class WhileToken(Token):

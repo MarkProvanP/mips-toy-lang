@@ -67,8 +67,12 @@ expression ::=
 	binary-expression ;
 
 primary-expression ::=
+	bool
 	number
 	ident ;
+
+bool ::=
+	"TRUE" | "FALSE"
 
 binary-expression ::=
 	expression operator expression ;
