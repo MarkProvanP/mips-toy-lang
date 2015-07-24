@@ -1,0 +1,3 @@
+function oneAssignment() {
+	s = 1;
+}

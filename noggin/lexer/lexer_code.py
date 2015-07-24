@@ -5,16 +5,23 @@ from lexer.tokens import *
 class Lexer:
 
     setUp = True
-    currentLineNo = 0
-    currentCharNo = 0
+    currentLineNo = 1
+    currentCharNo = 1
     tokenStartCharNo = 0
     tokenEndCharNo = 0
 
-    c = ' '
+    printVerbose = True
+
+    firstCharacterRead = False
+    c = ''
+    string = ""
 
     def get_char_stdin():
         char = sys.stdin.read(1)
         if len(char) > 0:
+            if ord(char) == 13:
+                # if we've just read a '\r' carriage return character
+                return get_char_stdin()
             return char
         else:
             return None
@@ -22,20 +29,43 @@ class Lexer:
     get_char = get_char_stdin
 
     @staticmethod
+    def check_for_new_line():
+        if Lexer.c == '\n':
+            if Lexer.printVerbose:
+                print("Newline at line: %d char: %d" % (Lexer.currentLineNo, Lexer.currentCharNo))
+            Lexer.currentLineNo += 1
+            Lexer.currentCharNo = 1
+            Lexer.c = Lexer.get_char()
+            return True
+        return False
+
+    @staticmethod
+    def continue_lexing_type():
+        Lexer.string += Lexer.c
+        Lexer.c = Lexer.get_char()
+        Lexer.tokenEndCharNo = Lexer.currentCharNo + 1
+        Lexer.currentCharNo += 1
+
+    @staticmethod
     def lex():
-        string = ""
+        Lexer.string = ""
 
         if not Lexer.setUp:
             print("Error, lexer not set up!")
             sys.exit(1)
 
-        while Lexer.c == ' ' or Lexer.c == '\t' or Lexer.c == '\n' or Lexer.c == '\r':
-            if Lexer.c == '\n':
-                Lexer.currentLineNo += 1
-                Lexer.currentCharNo = 1
+        if not Lexer.firstCharacterRead:
+            Lexer.firstCharacterRead = True
+            Lexer.c = Lexer.get_char()
+
+        while Lexer.c == ' ' or Lexer.c == '\t' or Lexer.c == '\r' or Lexer.c == '\n':
+            if Lexer.printVerbose:
+                print("Skipping over whitespace character")
+            if Lexer.check_for_new_line():
+                pass
             elif Lexer.c == ' ' or Lexer.c == '\t':
                 Lexer.currentCharNo += 1
-            Lexer.c = Lexer.get_char()
+                Lexer.c = Lexer.get_char()
 
         if Lexer.c is None:
             return None
@@ -43,50 +73,29 @@ class Lexer:
         if Lexer.c.isalpha():
             Lexer.tokenStartCharNo = Lexer.currentCharNo
             while Lexer.c.isalpha() or Lexer.c.isdigit():
-                string += Lexer.c
-                Lexer.c = Lexer.get_char()
-                Lexer.tokenEndCharNo = Lexer.currentCharNo
-                Lexer.currentCharNo += 1
-                if Lexer.c == '\n':
-                    Lexer.currentLineNo += 1
-                    Lexer.currentCharNo = 1
-            return Lexer.makeWordToken(string)
+                Lexer.continue_lexing_type()
+            return Lexer.makeWordToken(Lexer.string)
         elif Lexer.c.isdigit():
             Lexer.tokenStartCharNo = Lexer.currentCharNo
             while Lexer.c.isdigit():
-                string += Lexer.c
-                Lexer.c = Lexer.get_char()
-                Lexer.tokenEndCharNo = Lexer.currentCharNo
-                Lexer.currentCharNo += 1
-                if Lexer.c == '\n':
-                    Lexer.currentLineNo += 1
-                    Lexer.currentCharNo = 1
-            return Lexer.makeNumToken(string)
+                Lexer.continue_lexing_type()
+            return Lexer.makeNumToken(Lexer.string)
         elif Lexer.isCharPunctuation(Lexer.c):
-            string += Lexer.c
             Lexer.tokenStartCharNo = Lexer.currentCharNo
             if Lexer.isCharSinglePunctuation(Lexer.c):
-                Lexer.c = Lexer.get_char()
-                Lexer.tokenEndCharNo = Lexer.currentCharNo
-                Lexer.currentCharNo += 1
-                if Lexer.c == '\n':
-                    Lexer.currentLineNo += 1
-                    Lexer.currentCharNo = 1
+                Lexer.continue_lexing_type()
             else:
+                Lexer.string += Lexer.c
                 Lexer.c = get_char()
                 if Lexer.isCharSecondPunctuation(Lexer.c):
-                    string += Lexer.c
-                    Lexer.c = get_char()
-                    Lexer.tokenEndCharNo = Lexer.currentCharNo
-                    Lexer.currentCharNo += 1
-                    if Lexer.c == '\n':
-                        Lexer.currentLineNo += 1
-                        Lexer.currentCharNo = 1
-            return Lexer.makePunctuationToken(string)
+                    Lexer.continue_lexing_type()
+            return Lexer.makePunctuationToken(Lexer.string)
         return None
 
     @staticmethod
     def makeWordToken(s):
+        if Lexer.printVerbose:
+            print("Making word token from \"%s\", length: %d" % (s, len(s)))
         if s == 'function':
             return FunctionToken(s, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
         elif s == 'if':

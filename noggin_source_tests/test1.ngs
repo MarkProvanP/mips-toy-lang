@@ -1,0 +1,9 @@
+function empty() { }
+
+function hello() {
+  print(hello);
+}
+
+function tw() {
+  h=1+1;
+}
