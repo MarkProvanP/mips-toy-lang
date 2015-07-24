@@ -43,6 +43,14 @@ class NumberToken(Token):
     def __init__(self, original, lineNo = uln, charStart = ucs, charEnd = uce):
         super(NumberToken, self).__init__(original, lineNo, charStart, charEnd)
 
+class CharToken(Token):
+    def __init__(self, original, lineNo = uln, charStart = ucs, charEnd = uce):
+        super(CharToken, self).__init__(original, lineNo, charStart, charEnd)
+
+class StringToken(Token):
+    def __init__(self, original, lineNo = uln, charStart = ucs, charEnd = uce):
+        super(StringToken, self).__init__(original, lineNo, charStart, charEnd)
+
 # Other keywords and punctuation
 
 class AssignToken(Token):

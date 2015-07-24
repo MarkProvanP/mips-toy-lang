@@ -68,11 +68,12 @@ expression ::=
 
 primary-expression ::=
 	bool
+	char
 	number
 	ident ;
 
 bool ::=
-	"TRUE" | "FALSE"
+	"TRUE" | "FALSE" ;
 
 binary-expression ::=
 	expression operator expression ;
@@ -96,3 +97,9 @@ digit ::=
 
 nonzerodigit ::=
 	"1"..."9" ;
+
+char ::=
+	"'" [any ASCII character, or the escaped ones] "'"
+
+escapedchar ::=
+	`"\0" | "\\" | "\'" | "\"" | "\t" | "\n"`

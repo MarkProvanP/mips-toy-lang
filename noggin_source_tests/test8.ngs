@@ -1,0 +1,17 @@
+# Test characters
+
+function testChar() {
+  declare char e;
+  e = 'e';
+  declare char nl;
+  e = '\n';
+}
+
+# Test strings
+
+function testString() {
+  declare string s;
+  s = "hello world";
+  declare string snl;
+  s = "newline\n";
+}

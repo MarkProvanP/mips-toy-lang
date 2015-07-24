@@ -39,6 +39,12 @@ class PrimaryExpression(Expression):
         elif isinstance(Parser.get_token(), BoolToken):
             staticPrimaryExpression = Bool(Parser.get_token())
             Parser.advance_token()
+        elif isinstance(Parser.get_token(), CharToken):
+            staticPrimaryExpression = Char(Parser.get_token())
+            Parser.advance_token()
+        elif isinstance(Parser.get_token(), StringToken):
+            staticPrimaryExpression = String(Parser.get_token())
+            Parser.advance_token()
         else:
             raise ParserException(Parser.get_token(), PrimaryExpression)
         return staticPrimaryExpression
@@ -76,6 +82,24 @@ class Number(PrimaryExpression):
 
     def __init__(self, number):
         self.number = number
+
+class Char(PrimaryExpression):
+    char = None
+
+    def __init__(self, char):
+        self.char = char
+
+    def eval(self):
+        return chr(self.char)
+
+class String(PrimaryExpression):
+    string = None
+
+    def __init__(self, string):
+        self.string = string
+
+    def eval(self):
+        return str(self.string)
 
 class Statement:
     @staticmethod
