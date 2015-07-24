@@ -1,3 +1,5 @@
+#this is a two
+#line comment
 function oneAssignment() {
 	s = 1;
 }

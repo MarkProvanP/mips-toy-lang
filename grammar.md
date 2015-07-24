@@ -1,13 +1,23 @@
+The Noggin programming language
+=====
+
+### Comments
+
+`# Anything after a '#' on a line is a comment and is not parsed`
+
+Grammar in Backus-Naur Form
+-----
+
 program ::=
 	{ function } ;
-	
+
 function ::=
 	"FUNCTION" ident '(' definearguments ')' '{' statements '}' ;
-	
+
 definearguments ::=
 	ε
 	ident { ',' ident } ;
-	
+
 statements ::=
 	{ statement } ;
 
@@ -20,14 +30,14 @@ statement ::=
 
 functioncall ::=
 	ident '(' callarguments ')' ';' ;
-	
+
 callarguments ::=
 	ε
 	expression { ',' expression } ;
 
 assignment ::=
 	ident '=' expression ';' ;
-	
+
 ifelse ::=
 	"IF" '(' expression ')' '{' statements '}' "ELSE" '{' statements '}' ';' ;
 
@@ -36,7 +46,7 @@ while ::=
 
 dowhile ::=
 	"DO" '{' statements '}' "WHILE" '(' expression ')' ';' ;
-	
+
 expression ::=
 	primary-expression
 	binary-expression ;
@@ -44,7 +54,7 @@ expression ::=
 primary-expression ::=
 	number
 	ident ;
-	
+
 binary-expression ::=
 	expression operator expression ;
 

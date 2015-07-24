@@ -33,11 +33,15 @@ class Lexer:
         if Lexer.c == '\n':
             if Lexer.printVerbose:
                 print("Newline at line: %d char: %d" % (Lexer.currentLineNo, Lexer.currentCharNo))
-            Lexer.currentLineNo += 1
-            Lexer.currentCharNo = 1
-            Lexer.c = Lexer.get_char()
+            Lexer.advance_line()
             return True
         return False
+
+    @staticmethod
+    def advance_line():
+        Lexer.currentLineNo += 1
+        Lexer.currentCharNo = 1
+        Lexer.c = Lexer.get_char()
 
     @staticmethod
     def continue_lexing_type():
@@ -66,6 +70,19 @@ class Lexer:
             elif Lexer.c == ' ' or Lexer.c == '\t':
                 Lexer.currentCharNo += 1
                 Lexer.c = Lexer.get_char()
+
+        while Lexer.c == '#':
+            # Then we have a comment for the rest of this line
+            if Lexer.printVerbose:
+                print("Found a comment!")
+            Lexer.c = Lexer.get_char()
+            comment = ""
+            while Lexer.c != '\n':
+                comment += Lexer.c
+                Lexer.c = Lexer.get_char()
+            if Lexer.printVerbose:
+                print("Complete comment: %s" % comment)
+            Lexer.advance_line()
 
         if Lexer.c is None:
             return None

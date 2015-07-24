@@ -1,3 +1,4 @@
+# test1.ngs
 function empty() { }
 
 function hello() {
