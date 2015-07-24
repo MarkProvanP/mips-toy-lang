@@ -60,7 +60,8 @@ return ::=
 	"RETURN" expression ';' ;
 
 declare ::=
-	"DECLARE" typeandname ';' ;
+	"DECLARE" typeandname ';'
+	"DECLARE" typeandname "=" primary-expression ;
 
 expression ::=
 	primary-expression

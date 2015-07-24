@@ -215,13 +215,16 @@ class CallArguments:
 
 class Declare(Statement):
     typeAndName = None
+    value = None
 
-    def __init__(self, typeAndName):
+    def __init__(self, typeAndName, value):
         self.typeAndName = typeAndName
+        self.value = value
 
     @staticmethod
     def parse():
         staticTypeAndName = None
+        staticValue = None
 
         if isinstance(Parser.get_token(), DeclareToken):
             Parser.advance_token()
@@ -234,12 +237,21 @@ class Declare(Statement):
             print("Caught " + str(e) + " while parsing Declare type and name")
             raise e
 
+        if isinstance(Parser.get_token(), AssignToken):
+            Parser.advance_token()
+
+            try:
+                staticValue = PrimaryExpression.parse()
+            except ParserException as e:
+                print("Caught " + str(e) + " while parsing Declare value")
+                raise e
+
         if isinstance(Parser.get_token(), SemiColonToken):
             Parser.advance_token()
         else:
             raise ParserException(Parser.get_token(), SemiColonToken)
 
-        return Declare(staticTypeAndName)
+        return Declare(staticTypeAndName, staticValue)
 
 class TypeAndName:
     valueType = None

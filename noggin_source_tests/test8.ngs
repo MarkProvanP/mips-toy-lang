@@ -7,11 +7,9 @@ function testChar() {
   e = '\n';
 }
 
-# Test strings
+# Test strings and declare/value
 
 function testString() {
-  declare string s;
-  s = "hello world";
-  declare string snl;
-  s = "newline\n";
+  declare string s = "hello world";
+  declare string snl = "newline\n";
 }
