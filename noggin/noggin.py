@@ -4,8 +4,8 @@ import sys
 from lexer import lexer_code
 from lexer import tokens
 from ir import ir_code
-from parser_new.parser_code_new import Parser
-from parser_new.parser_elements_new import *
+from ng_parser.parser_code import Parser
+from ng_parser.parser_elements import *
 
 printVerbose = True
 

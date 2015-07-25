@@ -1,6 +1,6 @@
 from lexer.tokens import *
 
-from parser_new.parser_code_new import Parser, ParserException
+from ng_parser.parser_code import Parser, ParserException
 
 def expect_token(token):
     if isinstance(Parser.get_token(), token):
@@ -42,6 +42,8 @@ class PrimaryExpression(Expression):
         elif isinstance(Parser.get_token(), IdentToken):
             if isinstance(Parser.get_relative_token(1), LeftSquareToken):
                 staticPrimaryExpression = ArrayAccessExpression.parse()
+            elif isinstance(Parser.get_relative_token(1), LeftParenToken):
+                staticPrimaryExpression = FunctionCallExpression.parse()
             else:
                 staticPrimaryExpression = Ident(Parser.get_token())
                 Parser.advance_token()
@@ -121,7 +123,44 @@ class ArrayAccessExpression(PrimaryExpression):
             s += '[%s]' % le
         return s
 
-class Bool(PrimaryExpression):
+class FunctionCallExpression(PrimaryExpression):
+    ident = None
+    callArguments = None
+
+    def __init__(self, ident, callArguments):
+        self.ident = ident
+        self.callArguments = callArguments
+
+    @staticmethod
+    def parse():
+        staticIdent = None
+        staticCallArguments = None
+
+        if isinstance(Parser.get_token(), IdentToken):
+            staticIdent = Ident(Parser.get_token())
+            Parser.advance_token()
+        else:
+            raise ParserException(Parser.get_token(), IdentToken)
+
+        expect_token(LeftParenToken)
+
+        try:
+            staticCallArguments = CallArguments.parse()
+        except ParserException as e:
+            print("Caught " + str(e) + " while parsing FunctionCallStatement call arguments")
+            raise e
+
+        expect_token(RightParenToken)
+
+        return FunctionCallExpression(staticIdent, staticCallArguments)
+
+    def __str__(self):
+        return "%s(%s);" % (str(self.ident), str(self.callArguments))
+
+class LiteralExpression(PrimaryExpression):
+    pass
+
+class Bool(LiteralExpression):
     value = None
 
     def __init__(self, value):
@@ -133,7 +172,7 @@ class Bool(PrimaryExpression):
     def __str__(self):
         return str(self.value)
 
-class Ident(PrimaryExpression):
+class Ident(LiteralExpression):
     ident = None
 
     def __init__(self, ident):
@@ -142,7 +181,7 @@ class Ident(PrimaryExpression):
     def __str__(self):
         return str(self.ident)
 
-class Number(PrimaryExpression):
+class Number(LiteralExpression):
     number = None
 
     def __init__(self, number):
@@ -151,7 +190,7 @@ class Number(PrimaryExpression):
     def __str__(self):
         return str(self.number)
 
-class Char(PrimaryExpression):
+class Char(LiteralExpression):
     char = None
 
     def __init__(self, char):
@@ -163,7 +202,7 @@ class Char(PrimaryExpression):
     def __str__(self):
         return str(self.char)
 
-class String(PrimaryExpression):
+class String(LiteralExpression):
     string = None
 
     def __init__(self, string):
@@ -561,6 +600,8 @@ class Function:
 
     def __str__(self):
         return "function %s(%s) {\n%s}\n" % (self.functionTypeAndName, self.functionDeclareArguments, self.statements)
+
+
 
 class FunctionCallStatement(Statement):
     ident = None

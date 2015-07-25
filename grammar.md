@@ -18,7 +18,7 @@ functiondeclarearguments ::=
 	ε
 	typeandname { ',' typeandname } ;
 
-typeandname ::=
+type-and-name ::=
 	type ident
 
 type ::=
@@ -29,7 +29,7 @@ statements ::=
 	{ statement } ;
 
 statement ::=
-	functioncall
+	function-call
 	assignment
 	ifelse
 	while
@@ -40,8 +40,8 @@ statement ::=
 	break
 	fallthrough ;
 
-functioncall ::=
-	ident '(' callarguments ')' ';' ;
+function-call ::=
+	function-call-expression ';' ;
 
 callarguments ::=
 	ε
@@ -67,17 +67,17 @@ return ::=
 	"RETURN" expression ';' ;
 
 declare ::=
-	"DECLARE" typeandname ';'
-	"DECLARE" typeandname "=" primary-expression ;
+	"DECLARE" type-and-name ';'
+	"DECLARE" type-and-name "=" primary-expression ;
 
 switch ::=
-	"SWITCH" '(' expression ')' '{' { casestatement } '}'
-	"SWITCH" '(' expression ')' '{' { casestatement } defaultstatement '}'
+	"SWITCH" '(' expression ')' '{' { case-statement } '}'
+	"SWITCH" '(' expression ')' '{' { case-statement } default-statement '}'
 
-casestatement ::=
+case-statement ::=
 	"CASE" primary-expression ":" statements
 
-defaultstatement ::=
+default-statement ::=
 	"DEFAULT" ":" statements
 
 expression ::=
@@ -85,14 +85,21 @@ expression ::=
 	binary-expression ;
 
 primary-expression ::=
+	literal-expression
+	array-access-expression
+	function-call-expression ;
+
+literal-expression ::=
 	bool
 	char
 	number
-	ident
-	array-access-expression ;
+	ident ;
 
 array-access-expression ::=
 	ident '[' expression ']' { '[' expression ']' } ;
+
+function-call-expression ::=
+	ident '(' callarguments ')' ;
 
 bool ::=
 	"TRUE" | "FALSE" ;

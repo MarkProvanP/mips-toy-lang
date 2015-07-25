@@ -1,0 +1,6 @@
+# test function call as expression
+
+function void hello() {
+  declare int h = 0;
+  h = getInt();
+}
