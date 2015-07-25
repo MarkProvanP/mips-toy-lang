@@ -115,7 +115,7 @@ class Lexer:
                 # Standard base 10 uint literal
                 while Lexer.c.isdigit():
                     Lexer.continue_lexing_type()
-                return UInt10Token(Lexer.string, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
+                return UIntBase10Token(Lexer.string, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
             elif Lexer.c == 'b':
                 if Lexer.printVerbose:
                     print("Second character is binary start: " + Lexer.c)
@@ -126,7 +126,7 @@ class Lexer:
                     if Lexer.printVerbose:
                         print("Next binary character is: " + Lexer.c)
                     Lexer.continue_lexing_type()
-                return UInt2Token(Lexer.string, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
+                return UIntBase2Token(Lexer.string, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
             elif Lexer.c == 'o':
                 if Lexer.printVerbose:
                     print("Second character is octal start: " + Lexer.c)
@@ -135,7 +135,7 @@ class Lexer:
                 Lexer.c = Lexer.get_char()
                 while ord('0') <= ord(Lexer.c) <= ord('7'):
                     Lexer.continue_lexing_type()
-                return UInt8Token(Lexer.string, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
+                return UIntBase8Token(Lexer.string, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
             elif Lexer.c == 'x':
                 if Lexer.printVerbose:
                     print("Second character is hexadecimal start: " + Lexer.c)
@@ -144,7 +144,7 @@ class Lexer:
                 Lexer.c = Lexer.get_char()
                 while ord('0') <= ord(Lexer.c) <= ord('9') or ord('A') <= ord(Lexer.c) <= ord('F'):
                     Lexer.continue_lexing_type()
-                return UInt16Token(Lexer.string, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
+                return UIntBase16Token(Lexer.string, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
         elif Lexer.isCharPunctuation(Lexer.c):
             if Lexer.printVerbose:
                 print("Looking at punctuation character: " + Lexer.c)

@@ -43,21 +43,21 @@ class NumberToken(Token):
     def __init__(self, original, lineNo = uln, charStart = ucs, charEnd = uce):
         super(NumberToken, self).__init__(original, lineNo, charStart, charEnd)
 
-class UInt2Token(NumberToken):
+class UIntBase2Token(NumberToken):
     def __init__(self, original, lineNo = uln, charStart = ucs, charEnd = uce):
-        super(UInt2Token, self).__init__(original, lineNo, charStart, charEnd)
+        super(UIntBase2Token, self).__init__(original, lineNo, charStart, charEnd)
 
-class UInt8Token(NumberToken):
+class UIntBase8Token(NumberToken):
     def __init__(self, original, lineNo = uln, charStart = ucs, charEnd = uce):
-        super(UInt8Token, self).__init__(original, lineNo, charStart, charEnd)
+        super(UIntBase8Token, self).__init__(original, lineNo, charStart, charEnd)
 
-class UInt10Token(NumberToken):
+class UIntBase10Token(NumberToken):
     def __init__(self, original, lineNo = uln, charStart = ucs, charEnd = uce):
-        super(UInt10Token, self).__init__(original, lineNo, charStart, charEnd)
+        super(UIntBase10Token, self).__init__(original, lineNo, charStart, charEnd)
 
-class UInt16Token(NumberToken):
+class UIntBase16Token(NumberToken):
     def __init__(self, original, lineNo = uln, charStart = ucs, charEnd = uce):
-        super(UInt16Token, self).__init__(original, lineNo, charStart, charEnd)
+        super(UIntBase16Token, self).__init__(original, lineNo, charStart, charEnd)
 
 class CharToken(Token):
     def __init__(self, original, lineNo = uln, charStart = ucs, charEnd = uce):
