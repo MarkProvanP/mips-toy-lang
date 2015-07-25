@@ -40,8 +40,11 @@ class PrimaryExpression(Expression):
             staticPrimaryExpression = Number(Parser.get_token())
             Parser.advance_token()
         elif isinstance(Parser.get_token(), IdentToken):
-            staticPrimaryExpression = Ident(Parser.get_token())
-            Parser.advance_token()
+            if isinstance(Parser.get_relative_token(1), LeftSquareToken):
+                staticPrimaryExpression = ArrayAccessExpression.parse()
+            else:
+                staticPrimaryExpression = Ident(Parser.get_token())
+                Parser.advance_token()
         elif isinstance(Parser.get_token(), BoolToken):
             staticPrimaryExpression = Bool(Parser.get_token())
             Parser.advance_token()
@@ -67,6 +70,47 @@ class BinaryExpression(Expression):
         self.left = left
         self.operator = operator
         self.right = right
+
+class ArrayAccessExpression(PrimaryExpression):
+    arrayName = None
+    levelExpression = []
+
+    def __init__(self, arrayName, levelExpression):
+        self.arrayName = arrayName
+        self.levelExpression = levelExpression
+
+    @staticmethod
+    def parse():
+        staticArrayName = None
+        staticLevelExpression = []
+
+        if isinstance(Parser.get_token(), IdentToken):
+            staticArrayName = Ident(Parser.get_token())
+            Parser.advance_token()
+        else:
+            raise ParserException(Parser.get_token(), IdentToken)
+
+        if isinstance(Parser.get_token(), LeftSquareToken):
+            Parser.advance_token()
+            try:
+                nextStaticLevelExpression = Expression.parse()
+                staticLevelExpression.append(nextStaticLevelExpression)
+            except ParserException as e:
+                print("Caught " + str(e) + " while parsing ArrayAccessExpression level expression no: 1")
+                raise e
+
+            expect_token(RightSquareToken)
+
+        while isinstance(Parser.get_token(), LeftSquareToken):
+            Parser.advance_token()
+            try:
+                nextStaticLevelExpression = Expression.parse()
+                staticLevelExpression.append(nextStaticLevelExpression)
+            except ParserException as e:
+                print("Caught " + str(e) + " while parsing ArrayAccessExpression level expression no: " + str(1 + len(staticLevelExpression)))
+                raise e
+
+            expect_token(RightSquareToken)
 
 class Bool(PrimaryExpression):
     value = None
@@ -254,7 +298,6 @@ class Declare(Statement):
 
         if isinstance(Parser.get_token(), AssignToken):
             Parser.advance_token()
-
             try:
                 staticValue = PrimaryExpression.parse()
             except ParserException as e:
@@ -278,11 +321,11 @@ class TypeAndName:
         staticValueType = None
         staticValueName = None
 
-        if isinstance(Parser.get_token(), IdentToken):
-            staticValueType = Ident(Parser.get_token())
-            Parser.advance_token()
-        else:
-            raise ParserException(Parser.get_token(), IdentToken)
+        try:
+            staticValueType = Type.parse()
+        except ParserException as e:
+            print("Caught " + str(e) + " while parsing TypeAndName type")
+            raise e
 
         if isinstance(Parser.get_token(), IdentToken):
             staticValueName = Ident(Parser.get_token())
@@ -291,6 +334,35 @@ class TypeAndName:
             raise ParserException(Parser.get_token(), IdentToken)
 
         return TypeAndName(staticValueType, staticValueName)
+
+class Type:
+    name = None
+    arrayDimension = 0
+
+    def __init__(self, name, arrayDimension):
+        self.name = name
+        self.arrayDimension = arrayDimension
+
+    @staticmethod
+    def parse():
+        staticName = None
+        staticArrayDimension = 0
+
+        if isinstance(Parser.get_token(), IdentToken):
+            staticName = Ident(Parser.get_token())
+            Parser.advance_token()
+        else:
+            raise ParserException(Parser.get_token(), IdentToken)
+
+        while isinstance(Parser.get_token(), LeftSquareToken):
+            Parser.advance_token()
+            if isinstance(Parser.get_token(), RightSquareToken):
+                Parser.advance_token()
+                staticArrayDimension += 1
+            else:
+                raise ParserException(Parser.get_token(), RightSquareToken)
+
+        return Type(staticName, staticArrayDimension)
 
 class FunctionDeclareArguments:
     defineArguments = []

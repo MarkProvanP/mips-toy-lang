@@ -19,7 +19,11 @@ functiondeclarearguments ::=
 	typeandname { ',' typeandname } ;
 
 typeandname ::=
-	ident ident
+	type ident
+
+type ::=
+	ident
+	ident { "[" "]" }
 
 statements ::=
 	{ statement } ;
@@ -84,7 +88,11 @@ primary-expression ::=
 	bool
 	char
 	number
-	ident ;
+	ident
+	array-access-expression ;
+
+array-access-expression ::=
+	ident '[' expression ']' { '[' expression ']' } ;
 
 bool ::=
 	"TRUE" | "FALSE" ;

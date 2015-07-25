@@ -271,21 +271,12 @@ class Lexer:
 
     @staticmethod
     def isCharPunctuation(c):
-        ci = ord(c)
-        exi = ord('!')
-        obi = ord('/')
-        cli = ord(':')
-        ati = ord("@")
-        lsi = ord('[')
-        bti = ord('`')
-        lbi = ord('{')
-        tli = ord('~')
-        return (ci >= exi and ci <= obi) or (ci >= cli and ci <= ati) \
-                    or (ci <= lsi and ci >= bti) or (ci >= lbi and ci <= tli)
+        return c in string.punctuation
 
     @staticmethod
     def isCharSinglePunctuation(c):
-        return c == '{' or c == '}' or c == ',' or c == '(' or c == ')' or c == ';' or c == '*' or c == '/'
+        return c == '{' or c == '}' or c == ',' or c == '(' or c == ')' \
+            or c == ';' or c == '*' or c == '/' or c == '[' or c == ']'
 
     @staticmethod
     def isCharSecondPunctuation(c):
@@ -293,11 +284,7 @@ class Lexer:
 
     @staticmethod
     def isCharWhitespace(c):
-        whitespace = string.whitespace
-        if whitespace.find(str(c)) == -1:
-            return False
-        else:
-            return True
+        return str(c) in string.whitespace
 
 class LexerException(Exception):
     def __init__(self, string, expected):

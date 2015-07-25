@@ -1,0 +1,18 @@
+function int notArray() {
+  return hello;
+}
+
+function int[] arrayOne() {
+  return "hello";
+}
+
+function int[][] arrayTwo() {
+  return "helloworld";
+}
+
+# test array access
+function void testOne() {
+  return myArray[1];
+  return myArray[2][3];
+  return myArray[8 * 3];
+}
