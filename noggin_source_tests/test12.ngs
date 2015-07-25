@@ -4,3 +4,7 @@ function void hello() {
   declare int h = 0;
   h = getInt();
 }
+
+# test declaration as progrram child
+declare int hello;
+declare string derp = "derp";

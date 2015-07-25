@@ -9,7 +9,7 @@ Grammar in Backus-Naur Form
 -----
 
 program ::=
-	{ function } ;
+	{ function | declare } ;
 
 function ::=
 	"FUNCTION" typeandname '(' functiondeclarearguments ')' '{' statements '}' ;
@@ -68,7 +68,7 @@ return ::=
 
 declare ::=
 	"DECLARE" type-and-name ';'
-	"DECLARE" type-and-name "=" primary-expression ;
+	"DECLARE" type-and-name "=" literal-expression ;
 
 switch ::=
 	"SWITCH" '(' expression ')' '{' { case-statement } '}'

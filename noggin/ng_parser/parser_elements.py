@@ -385,7 +385,10 @@ class Declare(Statement):
         return Declare(staticTypeAndName, staticValue)
 
     def __str__(self):
-        return "declare %s %s" % (self.typeAndName, self.value)
+        if self.value:
+            return "declare %s = %s;" % (self.typeAndName, self.value)
+        else:
+            return "declare %s;" % self.typeAndName
 
 class TypeAndName:
     valueType = None
@@ -744,32 +747,39 @@ class IfThen:
         return s
 
 class Program:
-    functions = []
+    funcsAndDeclarations = []
 
-    def __init__(self, functions):
-        self.functions = functions
+    def __init__(self, funcsAndDeclarations):
+        self.funcsAndDeclarations = funcsAndDeclarations
 
     @staticmethod
     def parse():
-        staticFunctions = []
+        staticFuncsAndDeclarations = []
 
         while Parser.has_another_token():
             if isinstance(Parser.get_token(), FunctionToken):
                 try:
                     nextFunction = Function.parse()
                 except ParserException as e:
-                    print("Caught " + str(e) + " while parsing Program function no " + str(1 + len(staticFunctions)))
+                    print("Caught " + str(e) + " while parsing Program function/declaration no " + str(1 + len(staticFuncsAndDeclarations)))
                     raise e
-                staticFunctions.append(nextFunction)
+                staticFuncsAndDeclarations.append(nextFunction)
+            elif isinstance(Parser.get_token(), DeclareToken):
+                try:
+                    nextDeclaration = Declare.parse()
+                except ParserException as e:
+                    print("Caught " + str(e) + " while parsing Program function/declaration no " + str(1 + len(staticFuncsAndDeclarations)))
+                    raise e
+                staticFuncsAndDeclarations.append(nextDeclaration)
             else:
-                raise ParserException(Parser.get_token(), FunctionToken)
+                raise ParserException(Parser.get_token(), "FunctionToken or DeclareToken")
 
-        return Program(staticFunctions)
+        return Program(staticFuncsAndDeclarations)
 
     def __str__(self):
         s = ""
-        for f in self.functions:
-            s += str(f) + "\n"
+        for fd in self.funcsAndDeclarations:
+            s += str(fd) + "\n"
         return s
 
 class Return:
