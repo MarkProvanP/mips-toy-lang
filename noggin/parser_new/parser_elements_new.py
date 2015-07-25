@@ -71,6 +71,9 @@ class BinaryExpression(Expression):
         self.operator = operator
         self.right = right
 
+    def __str__(self):
+        return "(" + str(self.left) + " " + str(self.operator) + " " + str(self.right) + ")"
+
 class ArrayAccessExpression(PrimaryExpression):
     arrayName = None
     levelExpression = []
@@ -112,6 +115,12 @@ class ArrayAccessExpression(PrimaryExpression):
 
             expect_token(RightSquareToken)
 
+    def __str__(self):
+        s = self.arrayName
+        for le in self.levelExpression:
+            s += '[%s]' % le
+        return s
+
 class Bool(PrimaryExpression):
     value = None
 
@@ -121,17 +130,26 @@ class Bool(PrimaryExpression):
     def eval(self):
         return bool(self.value)
 
+    def __str__(self):
+        return str(self.value)
+
 class Ident(PrimaryExpression):
     ident = None
 
     def __init__(self, ident):
         self.ident = ident
 
+    def __str__(self):
+        return str(self.ident)
+
 class Number(PrimaryExpression):
     number = None
 
     def __init__(self, number):
         self.number = number
+
+    def __str__(self):
+        return str(self.number)
 
 class Char(PrimaryExpression):
     char = None
@@ -142,6 +160,9 @@ class Char(PrimaryExpression):
     def eval(self):
         return chr(self.char)
 
+    def __str__(self):
+        return str(self.char)
+
 class String(PrimaryExpression):
     string = None
 
@@ -149,6 +170,9 @@ class String(PrimaryExpression):
         self.string = string
 
     def eval(self):
+        return str(self.string)
+
+    def __str__(self):
         return str(self.string)
 
 class Statement:
@@ -249,6 +273,9 @@ class AssignmentStatement(Statement):
 
         return AssignmentStatement(staticIdent, staticExpression)
 
+    def __str__(self):
+        return "%s = %s" % (self.ident, self.expression)
+
 class CallArguments:
     callExpressions = []
 
@@ -274,6 +301,16 @@ class CallArguments:
             staticCallExpressions.append(Expression.parse())
 
         return CallArguments(staticCallExpressions)
+
+    def __str__(self):
+        num = 0
+        s = ""
+        for ce in self.callExpressions:
+            if num != 0:
+                s += ", "
+            s += str(ce)
+            num += 1
+        return s
 
 class Declare(Statement):
     typeAndName = None
@@ -308,6 +345,9 @@ class Declare(Statement):
 
         return Declare(staticTypeAndName, staticValue)
 
+    def __str__(self):
+        return "declare %s %s" % (self.typeAndName, self.value)
+
 class TypeAndName:
     valueType = None
     valueName = None
@@ -334,6 +374,9 @@ class TypeAndName:
             raise ParserException(Parser.get_token(), IdentToken)
 
         return TypeAndName(staticValueType, staticValueName)
+
+    def __str__(self):
+        return str(self.valueType) + " " + str(self.valueName)
 
 class Type:
     name = None
@@ -364,6 +407,12 @@ class Type:
 
         return Type(staticName, staticArrayDimension)
 
+    def __str__(self):
+        s = str(self.name)
+        for x in range(0, self.arrayDimension):
+            s += "[]"
+        return s
+
 class FunctionDeclareArguments:
     defineArguments = []
 
@@ -393,6 +442,16 @@ class FunctionDeclareArguments:
 
         return FunctionDeclareArguments(staticFunctionDeclareArguments)
 
+    def __str__(self):
+        num = 0
+        s = ""
+        for da in self.defineArguments:
+            if num != 0:
+                s += ", "
+            s += str(da)
+            num += 1
+        return s
+
 class FallThroughStatement(Statement):
     @staticmethod
     def parse():
@@ -400,12 +459,18 @@ class FallThroughStatement(Statement):
         expect_token(SemiColonToken)
         return FallThroughStatement()
 
+    def __str__(self):
+        return "fallthrough"
+
 class BreakStatement(Statement):
     @staticmethod
     def parse():
         expect_token(BreakToken)
         expect_token(SemiColonToken)
         return BreakStatement()
+
+    def __str__(self):
+        return "break"
 
 class DoWhileStatement(Statement):
     doStatements = None
@@ -446,14 +511,16 @@ class DoWhileStatement(Statement):
 
         return DoWhileStatement(staticDoStatements, staticWhileExpression)
 
+    def __str__(self):
+        return "do { %s } while (%s)" % (self.doStatements, self.whileExpression)
 
 class Function:
     functionTypeAndName = None
     functionDeclareArguments = None
     statements = None
 
-    def __init__(self, functionName, functionDeclareArguments, statements):
-        self.functionName = functionName
+    def __init__(self, functionTypeAndName, functionDeclareArguments, statements):
+        self.functionTypeAndName = functionTypeAndName
         self.functionDeclareArguments = functionDeclareArguments
         self.statements = statements
 
@@ -492,6 +559,9 @@ class Function:
 
         return Function(staticFunctionTypeAndName, staticFunctionDeclareArguments, staticStatements)
 
+    def __str__(self):
+        return "function %s(%s) {\n%s}\n" % (self.functionTypeAndName, self.functionDeclareArguments, self.statements)
+
 class FunctionCallStatement(Statement):
     ident = None
     callArguments = None
@@ -524,6 +594,9 @@ class FunctionCallStatement(Statement):
         expect_token(SemiColonToken)
 
         return FunctionCallStatement(staticIdent, staticCallArguments)
+
+    def __str__(self):
+        return "%s(%s);" % (str(self.ident), str(self.callArguments))
 
 class IfElseStatement(Statement):
     ifThens = []
@@ -566,7 +639,7 @@ class IfElseStatement(Statement):
         expect_token(LeftBraceToken)
 
         try:
-            staticThenStatements = Statements.parse()
+            staticElseStatements = Statements.parse()
         except ParserException as e:
             print("Caught " + str(e) + " while parsing IfElseStatement then statements")
             raise e
@@ -574,6 +647,19 @@ class IfElseStatement(Statement):
         expect_token(RightBraceToken)
 
         return IfElseStatement(staticIfThens, staticElseStatements)
+
+    def __str__(self):
+        s = ""
+        no = 0
+        for ifthen in self.ifThens:
+            if no == 0:
+                s += "if %s" % ifthen
+            else:
+                s += "elif %s" % ifthen
+            no += 1
+        if self.elseStatements:
+            s += "else {\n%s}" % self.elseStatements
+        return s
 
 class IfThen:
     condition = None
@@ -608,6 +694,14 @@ class IfThen:
 
         expect_token(RightBraceToken)
 
+        return IfThen(staticCondition, staticThen)
+
+    def __str__(self):
+        s = "(" + str(self.condition) + ") {\n"
+        s += str(self.then)
+        s += "\n}"
+        return s
+
 class Program:
     functions = []
 
@@ -631,6 +725,12 @@ class Program:
 
         return Program(staticFunctions)
 
+    def __str__(self):
+        s = ""
+        for f in self.functions:
+            s += str(f) + "\n"
+        return s
+
 class Return:
     expression = None
 
@@ -653,6 +753,9 @@ class Return:
 
         return Return(staticExpression)
 
+    def __str__(self):
+        return "return %s;" % self.expression
+
 class Statements:
     statements = []
 
@@ -670,6 +773,13 @@ class Statements:
                 raise e
             staticStatements.append(nextStaticStatement)
         return Statements(staticStatements)
+
+    def __str__(self):
+        s = ""
+        for statement in self.statements:
+            s += str(statement)
+            s += '\n'
+        return s
 
 class SwitchStatement(Statement):
     switchExpression = None
@@ -718,6 +828,14 @@ class SwitchStatement(Statement):
 
         expect_token(RightBraceToken)
 
+    def __str__(self):
+        s = "switch (%s) {\n" % self.expression
+        for c in self.cases:
+            s += "%s\n" % str(c)
+        if self.default:
+            s += "%s\n" % str(c)
+        return c
+
 class CaseNotAStatement:
     primaryExpression = None
     statements = None
@@ -749,6 +867,9 @@ class CaseNotAStatement:
 
         return CaseNotAStatement(staticPrimaryExpression, staticStatements)
 
+    def __str__(self):
+        return "case %s: %s" % (self.primaryExpression, self.statements)
+
 class DefaultNotAStatement:
     statements = None
 
@@ -770,6 +891,9 @@ class DefaultNotAStatement:
             raise e
 
         return DefaultNotAStatement(staticStatements)
+
+    def __str__(self):
+        return "default: %s" % self.statements
 
 class WhileStatement(Statement):
     whileExpression = None
@@ -807,3 +931,6 @@ class WhileStatement(Statement):
         expect_token(RightBraceToken)
 
         return WhileStatement(staticWhileExpression, staticDoStatements)
+
+    def __str__(self):
+        return "while (" + str(self.whileExpression) + ") do {\n" + str(self.doStatements) + "}"

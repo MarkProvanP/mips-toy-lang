@@ -34,5 +34,7 @@ def main():
     except ParserException as e:
         print(e)
 
+    print(p)
+
 if __name__ == "__main__":
     main()

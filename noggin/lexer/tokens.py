@@ -33,11 +33,17 @@ class Token(object):
             self.charEnd
         )
 
+    def __str__(self):
+        return str(self.original)
+
 ## Primary expressions, where the content of the Token is actually important
 
 class BoolToken(Token):
     def __init__(self, original, lineNo = uln, charStart = ucs, charEnd = uce):
         super(BoolToken, self).__init__(original, lineNo, charStart, charEnd)
+
+    def __str__(self):
+        return str(self.original)
 
 class NumberToken(Token):
     def __init__(self, original, lineNo = uln, charStart = ucs, charEnd = uce):
@@ -70,7 +76,6 @@ class CharToken(Token):
 class StringToken(Token):
     def __init__(self, original, lineNo = uln, charStart = ucs, charEnd = uce):
         super(StringToken, self).__init__(original, lineNo, charStart, charEnd)
-
 # Other keywords and punctuation
 
 class AssignToken(Token):
@@ -137,6 +142,9 @@ class FunctionToken(Token):
 class IdentToken(Token):
     def __init__(self, original, lineNo = uln, charStart = ucs, charEnd = uce):
         super(IdentToken, self).__init__(original, lineNo, charStart, charEnd)
+
+    def __str__(self):
+        return str(self.original)
 StatementStartingTokens.append(IdentToken)
 DefineArgumentContinueTokens.append(IdentToken)
 
