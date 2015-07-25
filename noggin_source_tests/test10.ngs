@@ -1,0 +1,9 @@
+# test out different number bases
+
+function void hello() {
+  declare uint10 myDecimal = 8239;
+  declare uint2 myBinary = 0b01101001;
+  declare uint8 myOctal = 0o1231;
+  declare uint10 myDecimal2 = 128239;
+  declare uint16 myHexadecimal = 0xD98DB01F;
+}

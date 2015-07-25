@@ -90,16 +90,61 @@ class Lexer:
                 print("Lexer.c is None, reached end")
             return None
 
+        if Lexer.printVerbose:
+            print("Processing character: " + Lexer.c)
         if Lexer.c.isalpha():
+            if Lexer.printVerbose:
+                print("Character is alphanumeric: " + Lexer.c)
             Lexer.tokenStartCharNo = Lexer.currentCharNo
             while Lexer.c.isalpha() or Lexer.c.isdigit():
                 Lexer.continue_lexing_type()
             return Lexer.makeWordToken(Lexer.string)
         elif Lexer.c.isdigit():
+            if Lexer.printVerbose:
+                print("First character is number: " + Lexer.c)
+            # Parse a number
             Lexer.tokenStartCharNo = Lexer.currentCharNo
-            while Lexer.c.isdigit():
-                Lexer.continue_lexing_type()
-            return Lexer.makeNumToken(Lexer.string)
+            Lexer.string += Lexer.c
+            Lexer.c = Lexer.get_char()
+            # This is where a number can be base 2, 8, 10 or 16
+            if Lexer.printVerbose:
+                print("Second character is: " + Lexer.c)
+            if Lexer.c.isdigit():
+                if Lexer.printVerbose:
+                    print("Second character is digit: " + Lexer.c)
+                # Standard base 10 uint literal
+                while Lexer.c.isdigit():
+                    Lexer.continue_lexing_type()
+                return UInt10Token(Lexer.string, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
+            elif Lexer.c == 'b':
+                if Lexer.printVerbose:
+                    print("Second character is binary start: " + Lexer.c)
+                # Binary literal
+                Lexer.string += Lexer.c
+                Lexer.c = Lexer.get_char()
+                while Lexer.c == '0' or Lexer.c == '1':
+                    if Lexer.printVerbose:
+                        print("Next binary character is: " + Lexer.c)
+                    Lexer.continue_lexing_type()
+                return UInt2Token(Lexer.string, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
+            elif Lexer.c == 'o':
+                if Lexer.printVerbose:
+                    print("Second character is octal start: " + Lexer.c)
+                # Octal literal
+                Lexer.string += Lexer.c
+                Lexer.c = Lexer.get_char()
+                while ord('0') <= ord(Lexer.c) <= ord('7'):
+                    Lexer.continue_lexing_type()
+                return UInt8Token(Lexer.string, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
+            elif Lexer.c == 'x':
+                if Lexer.printVerbose:
+                    print("Second character is hexadecimal start: " + Lexer.c)
+                # Hexadecimal literal
+                Lexer.string += Lexer.c
+                Lexer.c = Lexer.get_char()
+                while ord('0') <= ord(Lexer.c) <= ord('9') or ord('A') <= ord(Lexer.c) <= ord('F'):
+                    Lexer.continue_lexing_type()
+                return UInt16Token(Lexer.string, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
         elif Lexer.isCharPunctuation(Lexer.c):
             if Lexer.printVerbose:
                 print("Looking at punctuation character: " + Lexer.c)
@@ -179,10 +224,6 @@ class Lexer:
             return DefaultToken(s, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
         else:
             return IdentToken(s, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
-
-    @staticmethod
-    def makeNumToken(s):
-        return NumberToken(s, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
 
     @staticmethod
     def makePunctuationToken(s):

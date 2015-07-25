@@ -10,3 +10,13 @@ function void sw() {
     lol();
   }
 }
+
+function void sw1() {
+  switch(hello) {
+  case 'a':
+    doSomething();
+    fallthrough;
+  case 'b':
+    doAnotherThing();
+  }
+}
