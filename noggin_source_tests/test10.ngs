@@ -1,9 +1,13 @@
-# test out different number bases
+# test out different number bases and signed ints
 
 function void hello() {
-  declare uint10 myDecimal = 8239;
-  declare uint2 myBinary = 0b01101001;
-  declare uint8 myOctal = 0o1231;
-  declare uint10 myDecimal2 = 128239;
-  declare uint16 myHexadecimal = 0xD98DB01F;
+  declare uint myDecimal = 8239;
+  declare uint myBinary = 0b01101001;
+  declare uint myOctal = 0o1231;
+  declare uint myDecimal2 = 128239;
+  declare uint myHexadecimal = 0xD98DB01F;
+  declare int myPositiveSignedInt1 = 1;
+  declare int myPositiveSignedInt2 = 243;
+  declare int myNegativeSignedInt1 = -1;
+  declare int myNegativeSignedInt2 = -124;
 }

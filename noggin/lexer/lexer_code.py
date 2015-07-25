@@ -145,11 +145,29 @@ class Lexer:
                 while ord('0') <= ord(Lexer.c) <= ord('9') or ord('A') <= ord(Lexer.c) <= ord('F'):
                     Lexer.continue_lexing_type()
                 return UIntBase16Token(Lexer.string, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
+            else:
+                return UIntBase10Token(Lexer.string, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
         elif Lexer.isCharPunctuation(Lexer.c):
             if Lexer.printVerbose:
                 print("Looking at punctuation character: " + Lexer.c)
             Lexer.tokenStartCharNo = Lexer.currentCharNo
-            if Lexer.isCharSinglePunctuation(Lexer.c):
+            if Lexer.c == "-":
+                if Lexer.printVerbose:
+                    print("Found possible signed number character: " + Lexer.c)
+                # This could either be a signed number or an operator
+                Lexer.string += Lexer.c
+                Lexer.c = Lexer.get_char()
+                if Lexer.c.isdigit():
+                    # This is a signed number
+                    if Lexer.printVerbose:
+                        print("This is a signed number")
+                    while Lexer.c.isdigit():
+                        Lexer.continue_lexing_type()
+                    return IntBase10Token(Lexer.string, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
+                else:
+                    return Lexer.makePunctuationToken(Lexer.string)
+
+            elif Lexer.isCharSinglePunctuation(Lexer.c):
                 if Lexer.printVerbose:
                     print("Punctuation is singleton")
                 Lexer.continue_lexing_type()

@@ -103,7 +103,7 @@ letter ::=
 	"a"..."z"  "A"..."Z" ;
 
 number ::=
-	uint_2 | uint_8 | uint_10 | uint_16
+	uint_2 | uint_8 | uint_10 | uint_16 | int_10
 
 uint_2 ::=
 	"0b" { digit_2 } ;
@@ -120,6 +120,10 @@ digit_8 ::=
 uint_10 ::=
 	"0"
 	nonzerodigit_10 { digit_10 } ;
+
+int_10 ::=
+	"-" uint_10
+	uint_10
 
 digit_10 ::=
 	"0"..."9" ;

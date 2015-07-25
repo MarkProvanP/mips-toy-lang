@@ -55,6 +55,10 @@ class UIntBase10Token(NumberToken):
     def __init__(self, original, lineNo = uln, charStart = ucs, charEnd = uce):
         super(UIntBase10Token, self).__init__(original, lineNo, charStart, charEnd)
 
+class IntBase10Token(NumberToken):
+    def __init__(self, original, lineNo = uln, charStart = ucs, charEnd = uce):
+        super(IntBase10Token, self).__init__(original, lineNo, charStart, charEnd)
+
 class UIntBase16Token(NumberToken):
     def __init__(self, original, lineNo = uln, charStart = ucs, charEnd = uce):
         super(UIntBase16Token, self).__init__(original, lineNo, charStart, charEnd)
