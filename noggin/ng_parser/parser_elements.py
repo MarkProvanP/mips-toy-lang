@@ -213,15 +213,29 @@ class ArrayAccessExpression(PrimaryExpression):
 
 
 class FunctionCallExpression(PrimaryExpression):
+
+    """Function call class.
+
+    A function call expression is used so the return value of that function can
+    be used as an expression term.
+    """
+
     ident = None
     callArguments = None
 
     def __init__(self, ident, callArguments):
+        """Construct a function call expression.
+
+        Arguments:
+        ident -- the name ident of the function
+        callArguments -- the arguments of the function call
+        """
         self.ident = ident
         self.callArguments = callArguments
 
     @staticmethod
     def parse(environment={}):
+        """Parse a function call expression."""
         staticIdent = None
         staticCallArguments = None
 
@@ -250,16 +264,32 @@ class FunctionCallExpression(PrimaryExpression):
 
 
 class LiteralExpression(PrimaryExpression):
+
+    """Literal expression class.
+
+    A literal expression is an expression where the value is set in the source
+    code, e.g. a number literal or a string literal.
+    """
+
     pass
 
 
 class Bool(LiteralExpression):
+
+    """Boolean literal class."""
+
     value = None
 
     def __init__(self, value):
+        """Construct a boolean literal.
+
+        Arguments:
+        value -- the BoolToken from the original source code
+        """
         self.value = value
 
     def eval(self):
+        """Return the original value evaluated as Python."""
         return bool(self.value)
 
     def __str__(self):
@@ -268,9 +298,17 @@ class Bool(LiteralExpression):
 
 
 class Ident(LiteralExpression):
+
+    """Ident class."""
+
     ident = None
 
     def __init__(self, ident):
+        """Construct an ident.
+
+        Arguments:
+        ident -- the IdentToken from the original source code
+        """
         self.ident = ident
 
     def __str__(self):
@@ -279,9 +317,17 @@ class Ident(LiteralExpression):
 
 
 class Number(LiteralExpression):
+
+    """Number literal class."""
+
     number = None
 
     def __init__(self, number):
+        """Construct a number literal.
+
+        Arguments:
+        number -- the NumberToken from the original source code
+        """
         self.number = number
 
     def __str__(self):
