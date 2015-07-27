@@ -1,0 +1,18 @@
+declare function void hello();
+declare function void there();
+declare string helloString = "hello";
+declare string thereString = "there";
+declare function void hellothere();
+
+function void hellothere() {
+  hello();
+  there();
+}
+
+function void hello() {
+  print(helloString);
+}
+
+function void there() {
+  print(thereString);
+}

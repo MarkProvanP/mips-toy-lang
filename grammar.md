@@ -5,18 +5,21 @@ The Noggin programming language
 
 `# Anything after a '#' on a line is a comment and is not parsed`
 
-Grammar in Backus-Naur Form
+### Grammar in Backus-Naur Form
 -----
 
 program ::=
-	{ function | declare } ;
+	{ functiondeclare | declare } { functiondefine };
 
-function ::=
-	"FUNCTION" typeandname '(' functiondeclarearguments ')' '{' statements '}' ;
+function-declare :: =
+	"DECLARE" "FUNCTION" type-and-name '(' function-signature-arguments ')' ';'
 
-functiondeclarearguments ::=
+function-define ::=
+	"FUNCTION" type-and-name '(' function-signature-arguments ')' '{' statements '}' ;
+
+function-signature-arguments ::=
 	ε
-	typeandname { ',' typeandname } ;
+	type-and-name { ',' type-and-name } ;
 
 type-and-name ::=
 	type ident

@@ -11,8 +11,11 @@ class Parser:
 
     @staticmethod
     def get_token():
-        return Parser.tokenList[Parser.tokenPosition]
-
+        try:
+            return Parser.tokenList[Parser.tokenPosition]
+        except IndexError as ie:
+            return None
+        
     @staticmethod
     def advance_token():
         if Parser.has_another_token():

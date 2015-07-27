@@ -455,21 +455,21 @@ class Type:
             s += "[]"
         return s
 
-class FunctionDeclareArguments:
-    defineArguments = []
+class FunctionSignatureArguments:
+    signatureArguments = []
 
-    def __init__(self, defineArguments):
-        self.defineArguments = defineArguments
+    def __init__(self, signatureArguments):
+        self.signatureArguments = signatureArguments
 
     @staticmethod
     def parse():
-        staticFunctionDeclareArguments = []
+        staticFunctionSignatureArguments = []
 
         if isinstance(Parser.get_token(), IdentToken):
             staticTypeAndName = TypeAndName.parse()
-            staticFunctionDeclareArguments.append(staticTypeAndName)
+            staticFunctionSignatureArguments.append(staticTypeAndName)
         elif isinstance(Parser.get_token(), RightParenToken):
-            return FunctionDeclareArguments(staticFunctionDeclareArguments)
+            return FunctionSignatureArguments(staticFunctionSignatureArguments)
         else:
             raise ParserException(Parser.get_token(), "FunctionDeclareArgumentsContinueToken")
 
@@ -478,16 +478,16 @@ class FunctionDeclareArguments:
 
             if isinstance(Parser.get_token(), IdentToken):
                 staticTypeAndName = TypeAndName.parse()
-                staticFunctionDeclareArguments.append(staticTypeAndName)
+                staticFunctionSignatureArguments.append(staticTypeAndName)
             else:
                 raise ParserException(Parser.get_token(), IdentToken)
 
-        return FunctionDeclareArguments(staticFunctionDeclareArguments)
+        return FunctionSignatureArguments(staticFunctionSignatureArguments)
 
     def __str__(self):
         num = 0
         s = ""
-        for da in self.defineArguments:
+        for da in self.signatureArguments:
             if num != 0:
                 s += ", "
             s += str(da)
@@ -556,20 +556,59 @@ class DoWhileStatement(Statement):
     def __str__(self):
         return "do { %s } while (%s)" % (self.doStatements, self.whileExpression)
 
-class Function:
+class FunctionDeclaration:
     functionTypeAndName = None
-    functionDeclareArguments = None
+    functionSignatureArguments = None
+
+    def __init__(self, functionTypeAndName, functionSignatureArguments):
+        self.functionTypeAndName = functionTypeAndName
+        self.functionSignatureArguments = functionSignatureArguments
+
+    @staticmethod
+    def parse():
+        staticFunctionTypeAndName = None
+        staticFunctionSignatureArguments = None
+
+        expect_token(DeclareToken)
+
+        expect_token(FunctionToken)
+
+        if isinstance(Parser.get_token(), IdentToken):
+            staticFunctionTypeAndName = TypeAndName.parse()
+        else:
+            raise ParserException(Parser.get_token(), IdentToken)
+
+        expect_token(LeftParenToken)
+
+        try:
+            staticFunctionSignatureArguments = FunctionSignatureArguments.parse()
+        except ParserException as e:
+            print("Caught " + str(e) + " while parsing Function declare arguments")
+            raise e
+
+        expect_token(RightParenToken)
+
+        expect_token(SemiColonToken)
+
+        return FunctionDeclaration(staticFunctionTypeAndName, staticFunctionSignatureArguments)
+
+    def __str__(self):
+        return "function %s(%s);\n" % (self.functionTypeAndName, self.functionSignatureArguments)
+
+class FunctionDefinition:
+    functionTypeAndName = None
+    functionSignatureArguments = None
     statements = None
 
-    def __init__(self, functionTypeAndName, functionDeclareArguments, statements):
+    def __init__(self, functionTypeAndName, functionSignatureArguments, statements):
         self.functionTypeAndName = functionTypeAndName
-        self.functionDeclareArguments = functionDeclareArguments
+        self.functionSignatureArguments = functionSignatureArguments
         self.statements = statements
 
     @staticmethod
     def parse():
         staticFunctionTypeAndName = None
-        staticFunctionDeclareArguments = None
+        staticFunctionSignatureArguments = None
         staticStatements = None
 
         expect_token(FunctionToken)
@@ -582,7 +621,7 @@ class Function:
         expect_token(LeftParenToken)
 
         try:
-            staticFunctionDeclareArguments = FunctionDeclareArguments.parse()
+            staticFunctionSignatureArguments = FunctionSignatureArguments.parse()
         except ParserException as e:
             print("Caught " + str(e) + " while parsing Function declare arguments")
             raise e
@@ -599,10 +638,10 @@ class Function:
 
         expect_token(RightBraceToken)
 
-        return Function(staticFunctionTypeAndName, staticFunctionDeclareArguments, staticStatements)
+        return FunctionDefinition(staticFunctionTypeAndName, staticFunctionSignatureArguments, staticStatements)
 
     def __str__(self):
-        return "function %s(%s) {\n%s}\n" % (self.functionTypeAndName, self.functionDeclareArguments, self.statements)
+        return "function %s(%s) {\n%s}\n" % (self.functionTypeAndName, self.functionSignatureArguments, self.statements)
 
 
 
@@ -747,39 +786,61 @@ class IfThen:
         return s
 
 class Program:
-    funcsAndDeclarations = []
+    functionDeclarations = []
+    globalVariableDeclarations = []
+    functionDefinitions = []
 
-    def __init__(self, funcsAndDeclarations):
-        self.funcsAndDeclarations = funcsAndDeclarations
+    def __init__(self, functionDeclarations, globalVariableDeclarations, functionDefinitions):
+        self.functionDeclarations = functionDeclarations
+        self.globalVariableDeclarations = globalVariableDeclarations
+        self.functionDefinitions = functionDefinitions
 
     @staticmethod
     def parse():
-        staticFuncsAndDeclarations = []
+        staticFunctionDeclarations = []
+        staticGlobalVariableDeclarations = []
+        staticFunctionDefinitions = []
 
+        # Parse all function and global variable declarations
+        while isinstance(Parser.get_token(), DeclareToken):
+            if isinstance(Parser.get_relative_token(1), FunctionToken):
+                try:
+                    nextFunctionDeclaration = FunctionDeclaration.parse()
+                    staticFunctionDeclarations.append(nextFunctionDeclaration)
+                except ParserException as e:
+                    print("Caught " + str(e) + " while parsing Program function declaration no " + str(1 + len(staticFunctionDeclarations)))
+                    raise e
+            else:
+                try:
+                    nextGlobalVariableDeclaration = Declare.parse()
+                    staticGlobalVariableDeclarations.append(nextGlobalVariableDeclaration)
+                except ParserException as e:
+                    print("Caught " + str(e) + " while parsing Program global variable declaration no " + str(1 + len(staticGlobalVariableDeclarations)))
+                    raise e
+
+        # Parser all function definitions
         while Parser.has_another_token():
             if isinstance(Parser.get_token(), FunctionToken):
                 try:
-                    nextFunction = Function.parse()
+                    nextFunctionDefinition = FunctionDefinition.parse()
+                    staticFunctionDefinitions.append(nextFunctionDefinition)
                 except ParserException as e:
                     print("Caught " + str(e) + " while parsing Program function/declaration no " + str(1 + len(staticFuncsAndDeclarations)))
                     raise e
-                staticFuncsAndDeclarations.append(nextFunction)
-            elif isinstance(Parser.get_token(), DeclareToken):
-                try:
-                    nextDeclaration = Declare.parse()
-                except ParserException as e:
-                    print("Caught " + str(e) + " while parsing Program function/declaration no " + str(1 + len(staticFuncsAndDeclarations)))
-                    raise e
-                staticFuncsAndDeclarations.append(nextDeclaration)
             else:
-                raise ParserException(Parser.get_token(), "FunctionToken or DeclareToken")
+                raise ParserException(Parser.get_token(), "FunctionToken")
 
-        return Program(staticFuncsAndDeclarations)
+        return Program(staticFunctionDeclarations, staticGlobalVariableDeclarations, staticFunctionDefinitions)
 
     def __str__(self):
+        print("program info: no fdeclares: %d, no vdeclares: %d, no fdefines: %d" % (len(self.functionDeclarations), len(self.globalVariableDeclarations), len(self.functionDefinitions)))
         s = ""
-        for fd in self.funcsAndDeclarations:
-            s += str(fd) + "\n"
+        for fdeclare in self.functionDeclarations:
+            s += str(fdeclare) + "\n"
+        for vdeclare in self.globalVariableDeclarations:
+            s += str(vdeclare) + "\n"
+        for fdefine in self.functionDefinitions:
+            s += str(fdefine) + "\n"
         return s
 
 class Return:
