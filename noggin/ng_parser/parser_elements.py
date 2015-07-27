@@ -1,16 +1,37 @@
 from lexer.tokens import *
 
-from ng_parser.parser_code import Parser, ParserException, ParserWrongTokenException
+from ng_parser.parser_code import Parser, ParserException,\
+    ParserWrongTokenException
+
 
 def expect_token(token):
+    """Expect a token type.
+
+    Keyword arguments:
+    token -- the Token type
+
+    Function which takes a Token type and checks that it is the next Token
+    type in the Token stream. Used when a parse() method only needs to check
+    the presence of a type of token (e.g. a keyword token) rather than
+    needing to do anything special with it.
+    """
     if isinstance(Parser.get_token(), token):
         Parser.advance_token()
     else:
         raise ParserWrongTokenException(Parser.get_token(), token)
 
+
 class Expression:
+
+    """Expression parsing class.
+
+    Expression.parse() will use the Fraser-Hanson algorithm to parse complex
+    series of binary expressions according to the precedence of the operators.
+    """
+
     @staticmethod
-    def parse(environment = {}):
+    def parse(environment={}):
+        """Parse an expression."""
         return Expression.fraser_hanson(1, environment)
 
     @staticmethod

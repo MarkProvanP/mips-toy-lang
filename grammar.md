@@ -89,20 +89,24 @@ expression ::=
 
 primary-expression ::=
 	literal-expression
-	array-access-expression
-	function-call-expression ;
+	function-call-expression
+	variable-access-expression ;
 
 literal-expression ::=
 	bool
 	char
-	number
-	ident ;
-
-array-access-expression ::=
-	ident '[' expression ']' { '[' expression ']' } ;
+	string
+	number ;
 
 function-call-expression ::=
 	ident '(' callarguments ')' ;
+
+variable-access-expression ::=
+	ident
+	array-access-expression
+
+array-access-expression ::=
+	ident '[' expression ']' { '[' expression ']' } ;
 
 bool ::=
 	"TRUE" | "FALSE" ;
@@ -160,3 +164,6 @@ char ::=
 
 escapedchar ::=
 	`"\0" | "\\" | "\'" | "\"" | "\t" | "\n"`
+
+string ::=
+	'"' { char }'"'
