@@ -15,7 +15,7 @@ class Parser:
             return Parser.tokenList[Parser.tokenPosition]
         except IndexError as ie:
             return None
-        
+
     @staticmethod
     def advance_token():
         if Parser.has_another_token():
@@ -36,10 +36,13 @@ class Parser:
 
 
 class ParserException(Exception):
+    pass
+
+class ParserWrongTokenException(ParserException):
     def __init__(self, token, expected):
         self.token = token
         self.expected = expected
 
     def __str__(self):
-        return "Parser Exception: expected " + str(self.expected.__name__) if isinstance(self.expected, Token) else str(self.expected)\
+        return "ParserWrongTokenException: expected " + str(self.expected.__name__) if isinstance(self.expected, Token) else str(self.expected)\
             + " but got " + str(self.token)
