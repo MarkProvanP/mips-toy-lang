@@ -1,7 +1,12 @@
 from nose.tools import *
+import sys
 
-from noggin.lexer.tokens import *
-from noggin.ng_parser.parser_code import Parser
+print("parser_tests: current path is:")
+print(sys.path)
+
+from lexer_tokens import *
+from parser_code import Parser
+from parser_elements import *
 
 def setup():
     print("Setting up parser tests")
@@ -10,7 +15,6 @@ def teardown():
     print("Tearing down parser tests")
 
 def test_parse_prog():
-    from noggin.parser.program import Program
     emptyProg = []
     Parser.set_tokens(emptyProg)
     pe = Program.parse()

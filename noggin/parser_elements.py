@@ -565,6 +565,16 @@ class DeclareStatement(Statement):
         else:
             return "declare %s;" % self.typeAndName
 
+    def source_ref(self):
+        """Return a string referring to original source code.
+
+        This string will include the original line number and character start
+        and end numbers.
+        """
+        return "Declare statement: \n"\
+            + str(self) + "\n"\
+            + "on line: %d between characters: %d and %d\n" % (-1, -1, -1)
+
 
 class TypeAndName:
     valueType = None
@@ -795,8 +805,17 @@ class FunctionDeclaration:
 
     def __str__(self):
         """Return a noggin source code representation."""
-        return "function %s(%s);\n" % (self.typeAndName, self.signatureArguments)
+        return "function %s(%s);" % (self.typeAndName, self.signatureArguments)
 
+    def source_ref(self):
+        """Return a string referring to original source code.
+
+        This string will include the original line number and character start
+        and end numbers.
+        """
+        return "Function declare statement: \n"\
+            + str(self) + "\n"\
+            + "on line: %d between characters: %d and %d\n" % (-1, -1, -1)
 
 class FunctionDefinition:
     typeAndName = None
@@ -1066,8 +1085,12 @@ class Program:
                         variable declaration no %d" % t)
                     raise e
 
-        print("Current environment after declarations: ")
-        print(environment)
+        if Parser.printVerbose:
+            print("Current environment after declarations: ")
+            print(environment)
+            for k, v in environment.items():
+                print("Key: ", k)
+                print("Value: ", v.source_ref())
 
         # Parser all function definitions
         while Parser.has_another_token():
@@ -1089,7 +1112,8 @@ class Program:
         return Program(
             staticFunctionDeclarations,
             staticGlobalVariableDeclarations,
-            staticFunctionDefinitions)
+            staticFunctionDefinitions
+        )
 
     def __str__(self):
         """Return a noggin source code representation."""

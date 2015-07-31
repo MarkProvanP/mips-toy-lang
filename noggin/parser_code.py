@@ -3,6 +3,7 @@ from lexer_tokens import Token
 class Parser:
     tokenList = []
     tokenPosition = 0
+    printVerbose = True
 
     @staticmethod
     def has_another_token():
@@ -32,7 +33,7 @@ class Parser:
         if len(Parser.tokenList) > newTokenPosition:
             return Parser.tokenList[newTokenPosition]
         else:
-            return EOIToken()
+            return None
 
 
 class ParserException(Exception):

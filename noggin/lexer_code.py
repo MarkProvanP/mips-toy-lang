@@ -10,7 +10,7 @@ class Lexer:
     tokenStartCharNo = 0
     tokenEndCharNo = 0
 
-    printVerbose = True
+    printVerbose = False
 
     firstCharacterRead = False
     c = ''

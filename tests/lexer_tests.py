@@ -1,5 +1,10 @@
 from nose.tools import *
-from noggin.lexer.tokens import *
+import sys
+
+print("lexer_tests: current path is:")
+print(sys.path)
+
+from lexer_tokens import *
 
 def setup():
     print("Setting up lexer tests")
