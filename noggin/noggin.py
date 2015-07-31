@@ -1,11 +1,10 @@
 import argparse
 import sys
 
-from lexer import lexer_code
-from lexer import tokens
-from ir import ir_code
-from ng_parser.parser_code import Parser
-from ng_parser.parser_elements import *
+import lexer_code
+import lexer_tokens
+from parser_code import Parser
+from parser_elements import *
 
 printVerbose = True
 
@@ -31,10 +30,10 @@ def main():
 
     try:
         p = Program.parse()
+        print(p)
     except ParserException as e:
         print(e)
 
-    print(p)
 
 if __name__ == "__main__":
     main()

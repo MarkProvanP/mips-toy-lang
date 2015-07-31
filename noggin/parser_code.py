@@ -1,4 +1,4 @@
-from lexer.tokens import Token
+from lexer_tokens import Token
 
 class Parser:
     tokenList = []

@@ -1,6 +1,5 @@
 import sys
-import lexer.tokens
-from lexer.tokens import *
+from lexer_tokens import *
 import string
 
 class Lexer:

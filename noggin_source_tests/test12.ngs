@@ -1,10 +1,13 @@
 # test function call as expression
+# test declaration as progrram child
+declare function void hello();
+
+declare int hello;
+declare string derp = "derp";
+
+
 
 function void hello() {
   declare int h = 0;
   h = getInt();
 }
-
-# test declaration as progrram child
-declare int hello;
-declare string derp = "derp";

@@ -4,7 +4,7 @@ This module stores all of the parser element classes, which recursively call
 each others' parse() methods to create the overall parse tree.
 """
 
-from lexer.tokens import Token,\
+from lexer_tokens import Token,\
     BoolToken, NumberToken, UIntBase2Token, UIntBase8Token, UIntBase10Token,\
     IntBase10Token, UIntBase16Token, CharToken, StringToken,\
     AssignToken, BreakToken, CaseToken, ColonToken, CommaToken, DeclareToken,\
@@ -15,7 +15,7 @@ from lexer.tokens import Token,\
     SwitchToken, WhileToken,\
     StatementStartingTokens, DefineArgumentContinueTokens
 
-from ng_parser.parser_code import Parser, ParserException,\
+from parser_code import Parser, ParserException,\
     ParserWrongTokenException
 
 
@@ -1060,7 +1060,7 @@ class Program:
                 except ParserException as e:
                     t = (
                         str(e),
-                        str(1 + len(staticGlobalVariableDeclarations))
+                        1 + len(staticGlobalVariableDeclarations)
                     )
                     print("Caught %s while parsing Program global \
                         variable declaration no %d" % t)
