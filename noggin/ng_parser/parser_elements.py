@@ -336,9 +336,17 @@ class Number(LiteralExpression):
 
 
 class Char(LiteralExpression):
+
+    """Character literal class."""
+
     char = None
 
     def __init__(self, char):
+        """Construct a char literal.
+
+        Arguments:
+        char -- the CharToken from the original source code
+        """
         self.char = char
 
     def eval(self):
@@ -437,7 +445,6 @@ class Statement:
     @staticmethod
     def able_to_start():
         return type(Parser.get_token()) in StatementStartingTokens
-
 
 
 class AssignmentStatement(Statement):
@@ -772,7 +779,8 @@ class FunctionDeclaration:
         expect_token(LeftParenToken)
 
         try:
-            staticFunctionSignatureArguments = FunctionSignatureArguments.parse(environment)
+            staticFunctionSignatureArguments\
+                = FunctionSignatureArguments.parse(environment)
         except ParserException as e:
             print("Caught " + str(e) + " while parsing Function declare arguments")
             raise e
@@ -781,7 +789,9 @@ class FunctionDeclaration:
 
         expect_token(SemiColonToken)
 
-        return FunctionDeclaration(staticFunctionTypeAndName, staticFunctionSignatureArguments)
+        return FunctionDeclaration(
+            staticFunctionTypeAndName,
+            staticFunctionSignatureArguments)
 
     def __str__(self):
         """Return a noggin source code representation."""
@@ -1021,7 +1031,7 @@ class Program:
 
         # As each declaration is made, add to the 'environment' dict
 
-        environment={}
+        environment = {}
 
         # Parse all function and global variable declarations
         while isinstance(Parser.get_token(), DeclareToken):
@@ -1048,9 +1058,12 @@ class Program:
                     k = tan.to_key()
                     environment[k] = nextGlobalVariableDeclaration
                 except ParserException as e:
-                    print("Caught " + str(e) + " while parsing Program global \
-                        variable declaration no " \
-                        + str(1 + len(staticGlobalVariableDeclarations)))
+                    t = (
+                        str(e),
+                        str(1 + len(staticGlobalVariableDeclarations))
+                    )
+                    print("Caught %s while parsing Program global \
+                        variable declaration no %d" % t)
                     raise e
 
         print("Current environment after declarations: ")
@@ -1060,13 +1073,13 @@ class Program:
         while Parser.has_another_token():
             if isinstance(Parser.get_token(), FunctionToken):
                 try:
-                    nextFunctionDefinition = FunctionDefinition.parse(
-                        environment)
+                    nextFunctionDefinition\
+                        = FunctionDefinition.parse(environment)
                     staticFunctionDefinitions.append(nextFunctionDefinition)
                 except ParserException as e:
                     print("Caught " + str(e) + " while parsing Program \
-                    function/declaration no " \
-                    + str(1 + len(staticFuncsAndDeclarations)))
+                    function definition no "
+                                    + str(1 + len(staticFunctionDefinitions)))
                     raise e
             else:
                 raise ParserWrongTokenException(
@@ -1096,6 +1109,9 @@ class Program:
 
 
 class ReturnStatement:
+    """Class for a return statement.
+
+    """
     expression = None
 
     def __init__(self, expression):

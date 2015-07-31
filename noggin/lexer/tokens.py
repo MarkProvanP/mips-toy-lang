@@ -1,3 +1,9 @@
+"""
+Module containing all Token classes.
+
+This module contains all the different token classes.
+"""
+
 StatementStartingTokens = []
 DefineArgumentContinueTokens = []
 
@@ -5,21 +11,21 @@ uln = "?"
 ucs = "?"
 uce = "?"
 
-class Token(object):
-    '''Common base class for all Tokens'''
 
-    def __init__(self, original,\
-            lineNo = uln,\
-            charStart = ucs,\
-            charEnd = uce\
-    ):
+class Token(object):
+
+    """Common base class for all Tokens."""
+
+    def __init__(
+            self,
+            original,
+            lineNo=uln,
+            charStart=ucs,
+            charEnd=uce):
         self.original = original
         self.lineNo = lineNo
         self.charStart = charStart
         self.charEnd = charEnd
-
-    def __str__(self):
-        return self.get_info()
 
     def get_precedence(self):
         return 0
@@ -36,7 +42,7 @@ class Token(object):
     def __str__(self):
         return str(self.original)
 
-## Primary expressions, where the content of the Token is actually important
+# Primary expressions, where the content of the Token is actually important
 
 class BoolToken(Token):
     def __init__(self, original, lineNo = uln, charStart = ucs, charEnd = uce):
