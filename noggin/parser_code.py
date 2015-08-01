@@ -45,19 +45,29 @@ class ParserWrongTokenException(ParserException):
         self.expected = expected
 
     def __str__(self):
-        return "ParserWrongTokenException: expected " + str(self.expected.__name__) if isinstance(self.expected, Token) else str(self.expected)\
-            + " but got " + str(self.token)
+        if isinstance(self.expected, Token):
+            x = str(self.expected.__name__)
+        else:
+            x = str(self.expected)
+        return "ParserWrongTokenException: expected %s but got %s" % (x, str(type(self.token)))
 
 class ParserFunctionDefineWithoutDeclareException(ParserException):
     def __init__(self, typeAndName):
         self.typeAndName = typeAndName
 
     def __str__(self):
-        return "ParserFunctionDefineWithoutDeclareException: function defined without having been "
+        return "ParserFunctionDefineWithoutDeclareException: function %s defined without having been declared" % self.functionName
 
-class ParserVariableUseWithoutDeclareException(ParserException):
-    def __init__(self, typeAndName):
-        self.typeAndName = typeAndName
+class ParserFunctionUseWithoutDeclareException(ParserException):
+    def __init__(self, functionName):
+        self.functionName = functionName
 
     def __str__(self):
-        return "ParserUseWithoutDeclareException: variable used before being declared "
+        return "ParserFunctionUseWithoutDeclareException: function %s used before being declared" % self.functionName
+        
+class ParserVariableUseWithoutDeclareException(ParserException):
+    def __init__(self, variableName):
+        self.variableName = variableName
+
+    def __str__(self):
+        return "ParserVariableUseWithoutDeclareException: variable %s used before being declared" % self.variableName

@@ -17,6 +17,7 @@ from lexer_tokens import Token,\
 
 from parser_code import Parser, ParserException,\
     ParserWrongTokenException, ParserFunctionDefineWithoutDeclareException,\
+    ParserFunctionUseWithoutDeclareException,\
     ParserVariableUseWithoutDeclareException
 
 
@@ -528,25 +529,33 @@ class CallArguments:
 
 
 class DeclareStatement(Statement):
-    typeAndName = None
+    variableType = None
+    variableName = None
     value = None
 
-    def __init__(self, typeAndName, value):
-        self.typeAndName = typeAndName
+    def __init__(self, variableType, variableName, value):
+        self.variableType = variableType
+        self.variableName = variableName
         self.value = value
 
     @staticmethod
     def parse(environment={}):
-        staticTypeAndName = None
+        staticVariableType = None
+        staticVariableName = None
         staticValue = None
 
         expect_token(DeclareToken)
 
         try:
-            staticTypeAndName = TypeAndName.parse(environment)
+            staticVariableType = Type.parse(environment)
         except ParserException as e:
-            print("Caught " + str(e) + " while parsing DeclareStatement type \
-            and name")
+            print("Caught " + str(e) + " while parsing DeclareStatement type")
+            raise e
+        
+        try:
+            staticVariableName = Name.parse(environment)
+        except ParserException as e:
+            print("Caught " + str(e) + " while parsing DeclareStatement type")
             raise e
 
         if isinstance(Parser.get_token(), AssignToken):
@@ -560,14 +569,14 @@ class DeclareStatement(Statement):
 
         expect_token(SemiColonToken)
 
-        return DeclareStatement(staticTypeAndName, staticValue)
+        return DeclareStatement(staticVariableType, staticVariableName, staticValue)
 
     def __str__(self):
         """Return a noggin source code representation."""
         if self.value:
-            return "declare %s = %s;" % (self.typeAndName, self.value)
+            return "declare %s %s = %s;" % (self.variableType, self.variableName, self.value)
         else:
-            return "declare %s;" % self.typeAndName
+            return "declare %s %s;" % (self.variableType, self.variableName)
 
     def source_ref(self):
         """Return a string referring to original source code.
@@ -578,43 +587,7 @@ class DeclareStatement(Statement):
         return "Declare statement: \n"\
             + str(self) + "\n"\
             + "on line: %d between characters: %d and %d\n" % (-1, -1, -1)
-
-
-class TypeAndName:
-    valueType = None
-    valueName = None
-
-    def __init__(self, valueType, valueName):
-        self.valueType = valueType
-        self.valueName = valueName
-
-    @staticmethod
-    def parse(environment={}):
-        staticValueType = None
-        staticValueName = None
-
-        try:
-            staticValueType = Type.parse(environment)
-        except ParserException as e:
-            print("Caught " + str(e) + " while parsing TypeAndName type")
-            raise e
-
-        if isinstance(Parser.get_token(), IdentToken):
-            staticValueName = Ident(Parser.get_token())
-            Parser.advance_token()
-        else:
-            raise ParserWrongTokenException(Parser.get_token(), IdentToken)
-
-        return TypeAndName(staticValueType, staticValueName)
-
-    def __str__(self):
-        """Return a noggin source code representation."""
-        return str(self.valueType) + " " + str(self.valueName)
-
-    def to_key(self):
-        return str(self.valueName)
-
-
+            
 class Type:
     name = None
     arrayDimension = 0
@@ -652,6 +625,27 @@ class Type:
             s += "[]"
         return s
 
+class Name:
+    name = None
+
+    def __init__(self, name):
+        self.name = name
+
+    @staticmethod
+    def parse(environment={}):
+        name = None
+
+        if isinstance(Parser.get_token(), IdentToken):
+            name = Ident(Parser.get_token())
+            Parser.advance_token()
+        else:
+            raise ParserWrongTokenException(Parser.get_token(), IdentToken)
+        
+        return Name(name)
+    
+    def __str__(self):
+        """Return a noggin source code representation"""
+        return str(self.name)
 
 class FunctionSignatureArguments:
     signatureArguments = []
@@ -664,7 +658,9 @@ class FunctionSignatureArguments:
         staticFunctionSignatureArguments = []
 
         if isinstance(Parser.get_token(), IdentToken):
-            staticTypeAndName = TypeAndName.parse(environment)
+            staticType = Type.parse()
+            staticName = Name.parse()
+            staticTypeAndName = (staticType, staticName)
             staticFunctionSignatureArguments.append(staticTypeAndName)
         elif isinstance(Parser.get_token(), RightParenToken):
             return FunctionSignatureArguments(staticFunctionSignatureArguments)
@@ -676,7 +672,9 @@ class FunctionSignatureArguments:
             Parser.advance_token()
 
             if isinstance(Parser.get_token(), IdentToken):
-                staticTypeAndName = TypeAndName.parse(environment)
+                staticType = Type.parse()
+                staticName = Name.parse()
+                staticTypeAndName = (staticType, staticName)
                 staticFunctionSignatureArguments.append(staticTypeAndName)
             else:
                 raise ParserWrongTokenException(Parser.get_token(), IdentToken)
@@ -768,7 +766,8 @@ class DoWhileStatement(Statement):
 class FunctionDeclaration:
     firstToken = None
     lastToken = None
-    typeAndName = None
+    functionType = None
+    functionName = None
     signatureArguments = None
 
     # Link to the definition of this function
@@ -778,28 +777,38 @@ class FunctionDeclaration:
             self,
             firstToken,
             lastToken,
-            typeAndName,
+            functionType,
+            functionName,
             signatureArguments):
         self.firstToken = firstToken
         self.lastToken = lastToken
-        self.typeAndName = typeAndName
+        self.functionName = functionName
+        self.functionType = functionType
         self.signatureArguments = signatureArguments
 
     @staticmethod
     def parse(environment={}):
         staticFirstToken = None
         staticLastToken = None
-        staticFunctionTypeAndName = None
+        staticFunctionType = None
+        staticFunctionName = None
         staticFunctionSignatureArguments = None
 
         staticFirstToken = expect_token(DeclareToken)
 
         expect_token(FunctionToken)
 
-        if isinstance(Parser.get_token(), IdentToken):
-            staticFunctionTypeAndName = TypeAndName.parse(environment)
-        else:
-            raise ParserWrongTokenException(Parser.get_token(), IdentToken)
+        try:
+            staticFunctionType = Type.parse(environment)
+        except ParserException as e:
+            print("Caught %s while parsing Function declaration type" % str(e))
+            raise e
+        
+        try:
+            staticFunctionName = Name.parse(environment)
+        except ParserException as e:
+            print("Caught %s while parsing function declaration name" % str(e))
+            raise e
 
         expect_token(LeftParenToken)
 
@@ -817,12 +826,13 @@ class FunctionDeclaration:
         return FunctionDeclaration(
             staticFirstToken,
             staticLastToken,
-            staticFunctionTypeAndName,
+            staticFunctionType,
+            staticFunctionName,
             staticFunctionSignatureArguments)
 
     def __str__(self):
         """Return a noggin source code representation."""
-        return "function %s(%s);" % (self.typeAndName, self.signatureArguments)
+        return "function %s %s(%s);" % (self.functionType, self.functionName, self.signatureArguments)
 
     def source_ref(self):
         """Return a string referring to original source code.
@@ -839,7 +849,8 @@ class FunctionDeclaration:
 class FunctionDefinition:
     firstToken = None
     lastToken = None
-    typeAndName = None
+    functionType = None
+    functionName = None
     signatureArguments = None
     statements = None
 
@@ -850,13 +861,15 @@ class FunctionDefinition:
             self,
             firstToken,
             lastToken,
-            typeAndName,
+            functionType,
+            functionName,
             signatureArguments,
             statements,
             declaration):
         self.firstToken = firstToken
         self.lastToken = lastToken
-        self.typeAndName = typeAndName
+        self.functionType = functionType
+        self.functionName = functionName
         self.signatureArguments = signatureArguments
         self.statements = statements
         self.declaration = declaration
@@ -866,25 +879,25 @@ class FunctionDefinition:
     def parse(environment):
         staticFirstToken = None
         staticLastToken = None
-        staticTypeAndName = None
+        staticFunctionType = None
+        staticFunctionName = None
         staticSignatureArguments = None
         staticStatements = None
         staticDeclaration = None
 
         staticFirstToken = expect_token(FunctionToken)
 
-        if isinstance(Parser.get_token(), IdentToken):
-            staticTypeAndName = TypeAndName.parse(environment)
-        else:
-            raise ParserWrongTokenException(Parser.get_token(), IdentToken)
+        staticFunctionType = Type.parse(environment)
+        
+        staticFunctionName = Name.parse(environment)
 
         # Look up environment to see if this function has been declared yet.
-        k = staticTypeAndName.to_key()
+        k = str(staticFunctionName)
         if environment[k]:
             # Then this function type and name is already in the environment
             staticDeclaration = environment[k]
         else:
-            raise ParserFunctionDefineWithoutDeclareException(staticTypeAndName)
+            raise ParserFunctionDefineWithoutDeclareException(staticFunctionName)
 
         expect_token(LeftParenToken)
 
@@ -911,15 +924,17 @@ class FunctionDefinition:
         return FunctionDefinition(
             staticFirstToken,
             staticLastToken,
-            staticTypeAndName,
+            staticFunctionType,
+            staticFunctionName,
             staticSignatureArguments,
             staticStatements,
             staticDeclaration)
 
     def __str__(self):
         """Return a noggin source code representation."""
-        return "function %s(%s) {\n%s}\n" % (
-            self.typeAndName,
+        return "function %s %s(%s) {\n%s}\n" % (
+            self.functionType,
+            self.functionName,
             self.signatureArguments,
             self.statements)
 
@@ -974,12 +989,12 @@ class FunctionCallStatement(Statement):
             raise ParserWrongTokenException(Parser.get_token(), IdentToken)
 
         # Look up environment to see if this function has been declared yet.
-        k = staticIdent.to_key()
-        if environment[k]:
-            # Then this function type and name is already in the environment
+        k = str(staticIdent)
+        try:
             staticDeclaration = environment[k]
-        else:
-            raise ParserVariableUseWithoutDeclareException(staticIdent)
+            # Then this function type and name is already in the environment
+        except KeyError as e:
+            raise ParserFunctionUseWithoutDeclareException(staticIdent)
 
         expect_token(LeftParenToken)
 
@@ -1147,12 +1162,12 @@ class Program:
                     nextFunctionDeclaration = FunctionDeclaration.parse(
                         environment)
                     staticFunctionDeclarations.append(nextFunctionDeclaration)
-                    tan = nextFunctionDeclaration.typeAndName
-                    k = tan.to_key()
+                    functionName = nextFunctionDeclaration.functionName
+                    k = str(functionName)
                     environment[k] = nextFunctionDeclaration
                 except ParserException as e:
-                    print("Caught " + str(e) + " while parsing Program function\
-                         declaration no "\
+                    print("Caught " + str(e) + " while parsing Program function "\
+                         "declaration no "\
                           + str(1 + len(staticFunctionDeclarations)))
                     raise e
             else:
@@ -1161,8 +1176,8 @@ class Program:
                         environment)
                     staticGlobalVariableDeclarations.append(\
                         nextGlobalVariableDeclaration)
-                    tan = nextGlobalVariableDeclaration.typeAndName
-                    k = tan.to_key()
+                    variableName = nextGlobalVariableDeclaration.variableName
+                    k = str(variableName)
                     environment[k] = nextGlobalVariableDeclaration
                 except ParserException as e:
                     t = (

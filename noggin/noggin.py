@@ -6,7 +6,7 @@ import lexer_tokens
 from parser_code import Parser
 from parser_elements import *
 
-printVerbose = False
+printVerbose = True
 
 def main():
     a_parser = argparse.ArgumentParser(

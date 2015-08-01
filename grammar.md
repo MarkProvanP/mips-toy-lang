@@ -12,21 +12,21 @@ program ::=
 	{ functiondeclare | declare } { functiondefine };
 
 function-declare :: =
-	"DECLARE" "FUNCTION" type-and-name '(' function-signature-arguments ')' ';'
+	"DECLARE" "FUNCTION" type name '(' function-signature-arguments ')' ';'
 
 function-define ::=
-	"FUNCTION" type-and-name '(' function-signature-arguments ')' '{' statements '}' ;
+	"FUNCTION" type name '(' function-signature-arguments ')' '{' statements '}' ;
 
 function-signature-arguments ::=
 	ε
-	type-and-name { ',' type-and-name } ;
-
-type-and-name ::=
-	type ident
+	type name { ',' type name } ;
 
 type ::=
 	ident
 	ident { "[" "]" }
+
+name ::=
+	ident
 
 statements ::=
 	{ statement } ;

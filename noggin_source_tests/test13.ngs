@@ -3,6 +3,7 @@ declare function void there();
 declare string helloString = "hello";
 declare string thereString = "there";
 declare function void hellothere();
+declare function void print(string s);
 
 function void hellothere() {
   hello();
