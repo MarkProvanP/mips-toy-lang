@@ -4,6 +4,8 @@ This module stores all of the parser element classes, which recursively call
 each others' parse() methods to create the overall parse tree.
 """
 
+from abc import ABCMeta, abstractmethod
+
 from lexer_tokens import Token,\
     BoolToken, NumberToken, UIntBase2Token, UIntBase8Token, UIntBase10Token,\
     IntBase10Token, UIntBase16Token, CharToken, StringToken,\
@@ -47,6 +49,8 @@ class Expression:
 
     Expression.parse() will use the Fraser-Hanson algorithm to parse complex
     series of binary expressions according to the precedence of the operators.
+
+    This class should never be instantiated. It 
     """
 
     @staticmethod
@@ -56,7 +60,12 @@ class Expression:
 
     @staticmethod
     def _fraser_hanson(k, environment):
+        """Use the Fraser-Hanson method to parse binary expression trees.
 
+        This method will parse the tree of binary expressions, expecting to find
+        operator tokens between each expression. It will then create the tree
+        based on the precedence value set in the OperatorToken class.
+        """
         i = 0
         left = None
         operator = None
@@ -72,6 +81,9 @@ class Expression:
                 left = BinaryExpression(left, operator, right)
             i -= 1
         return left
+
+    @abstractmethod
+    def source_ref(self): pass
 
 
 class PrimaryExpression(Expression):
@@ -119,12 +131,19 @@ class PrimaryExpression(Expression):
         """Evaluate this expression."""
         return None
 
+    @abstractmethod
+    def source_ref(self): pass
+
 
 class BinaryExpression(Expression):
 
     """Binary expression class.
 
-    A binary expression is of the form: expression operator expression
+    A binary expression is of the form: expression operator expression. This 
+    class does not have its own parse() static method as parsing must be done in
+    the Expression class, which has the necessary Fraser-Hanson algorithm to
+    create the right parse tree based on the binary expression's operator
+    precedence.
     """
 
     left = None
@@ -181,6 +200,9 @@ class VariableAccessExpression(PrimaryExpression):
         return VariableAccessExpression(
             staticVariableName,
             staticDeclaration)
+
+    def __str__(self):
+        return str(self.variableName)
             
 class ArrayAccessExpression(PrimaryExpression):
 
@@ -503,22 +525,37 @@ class Statement:
     def able_to_start():
         return type(Parser.get_token()) in StatementStartingTokens
 
+    @abstractmethod
+    def source_ref(self): pass
+
 
 class AssignmentStatement(Statement):
+    firstToken = None
+    lastToken = None
     ident = None
     expression = None
 
-    def __init__(self, ident, expression):
+    def __init__(
+        self,
+        firstToken,
+        lastToken,
+        ident,
+        expression):
+        self.firstToken = firstToken
+        self.lastToken = lastToken
         self.ident = ident
         self.expression = expression
 
     @staticmethod
     def parse(environment={}):
+        staticFirstToken = None
+        staticLastToken = None
         staticIdent = None
         staticExpression = None
 
         if isinstance(Parser.get_token(), IdentToken):
             staticIdent = Ident(Parser.get_token())
+            staticFirstToken = staticIdent
             Parser.advance_token()
         else:
             raise ParserWrongTokenException(Parser.get_token(), IdentToken)
@@ -532,9 +569,13 @@ class AssignmentStatement(Statement):
                 % str(e))
             raise e
 
-        expect_token(SemiColonToken)
+        staticLastToken = expect_token(SemiColonToken)
 
-        return AssignmentStatement(staticIdent, staticExpression)
+        return AssignmentStatement(
+            staticFirstToken,
+            staticLastToken,
+            staticIdent,
+            staticExpression)
 
     def __str__(self):
         """Return a noggin source code representation."""
@@ -660,20 +701,20 @@ class DeclareStatement(Statement):
             + "on line: %d between characters: %d and %d\n" % (-1, -1, -1)
             
 class Type:
-    name = None
+    ident = None
     arrayDimension = 0
 
-    def __init__(self, name, arrayDimension):
-        self.name = name
+    def __init__(self, ident, arrayDimension):
+        self.ident = ident
         self.arrayDimension = arrayDimension
 
     @staticmethod
     def parse(environment={}):
-        staticName = None
+        staticIdent = None
         staticArrayDimension = 0
 
         if isinstance(Parser.get_token(), IdentToken):
-            staticName = Ident(Parser.get_token())
+            staticIdent = Ident(Parser.get_token())
             Parser.advance_token()
         else:
             raise ParserWrongTokenException(Parser.get_token(), IdentToken)
@@ -687,36 +728,72 @@ class Type:
                 raise ParserWrongTokenException(Parser.get_token(),
                     RightSquareToken)
 
-        return Type(staticName, staticArrayDimension)
+        return Type(staticIdent, staticArrayDimension)
 
     def __str__(self):
         """Return a noggin source code representation."""
-        s = str(self.name)
+        s = str(self.ident)
         for x in range(0, self.arrayDimension):
             s += "[]"
         return s
 
 class Name:
-    name = None
+    ident = None
 
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, ident):
+        self.ident = ident
 
     @staticmethod
     def parse(environment={}):
-        name = None
+        ident = None
 
         if isinstance(Parser.get_token(), IdentToken):
-            name = Ident(Parser.get_token())
+            ident = Ident(Parser.get_token())
             Parser.advance_token()
         else:
             raise ParserWrongTokenException(Parser.get_token(), IdentToken)
         
-        return Name(name)
+        return Name(ident)
     
     def __str__(self):
         """Return a noggin source code representation"""
-        return str(self.name)
+        return str(self.ident)
+
+class FunctionSignatureDeclare:
+    sigVariableType = None
+    sigVariableName = None
+
+    def __init__(self, sigVariableType, sigVariableName):
+        self.sigVariableType = sigVariableType
+        self.sigVariableName = sigVariableName
+
+    @staticmethod
+    def parse(environment={}):
+        staticSigVariableType = None
+        staticSigVariableName = None
+
+        if isinstance(Parser.get_token(), IdentToken):
+            try:
+                staticSigVariableType = Type.parse()
+            except ParserException as e:
+                print(("Caught %s while parsing function signature "
+                    "declaration - type")
+                    % str(e))
+                raise e
+            try:
+                staticSigVariableName = Name.parse()
+            except ParserException as e:
+                print(("Caught %s while parsing function signature "
+                    "declaration - name")
+                    % str(e))
+                raise e
+            return FunctionSignatureDeclare(
+                staticSigVariableType,
+                staticSigVariableName)
+
+    def __str__(self):
+        """Return a noggin source code representation"""
+        return "%s %s" % (self.sigVariableType, self.sigVariableName)
 
 class FunctionSignatureArguments:
     signatureArguments = []
@@ -728,27 +805,19 @@ class FunctionSignatureArguments:
     def parse(environment={}):
         staticFunctionSignatureArguments = []
 
-        if isinstance(Parser.get_token(), IdentToken):
-            staticType = Type.parse()
-            staticName = Name.parse()
-            staticTypeAndName = (staticType, staticName)
-            staticFunctionSignatureArguments.append(staticTypeAndName)
-        elif isinstance(Parser.get_token(), RightParenToken):
+        firstSignatureDeclare = FunctionSignatureDeclare.parse()
+
+        if not firstSignatureDeclare:
+            # If no signature declaration was parsed
             return FunctionSignatureArguments(staticFunctionSignatureArguments)
-        else:
-            raise ParserWrongTokenException(Parser.get_token(),
-                "FunctionDeclareArgumentsContinueToken")
+
+        staticFunctionSignatureArguments.append(firstSignatureDeclare)
 
         while isinstance(Parser.get_token(), CommaToken):
             Parser.advance_token()
 
-            if isinstance(Parser.get_token(), IdentToken):
-                staticType = Type.parse()
-                staticName = Name.parse()
-                staticTypeAndName = (staticType, staticName)
-                staticFunctionSignatureArguments.append(staticTypeAndName)
-            else:
-                raise ParserWrongTokenException(Parser.get_token(), IdentToken)
+            nextSignatureDeclare = FunctionSignatureDeclare.parse()
+            staticFunctionSignatureArguments.append(firstSignatureDeclare)
 
         return FunctionSignatureArguments(staticFunctionSignatureArguments)
 
@@ -966,10 +1035,10 @@ class FunctionDefinition:
 
         # Look up environment to see if this function has been declared yet.
         k = str(staticFunctionName)
-        if environment[k]:
+        try:
             # Then this function type and name is already in the environment
             staticDeclaration = environment[k]
-        else:
+        except KeyError as e:
             raise ParserFunctionDefineWithoutDeclareException(
                 staticFunctionName)
 
@@ -1400,7 +1469,8 @@ class SwitchStatement(Statement):
         try:
             staticSwitchExpression = Expression.parse(environment)
         except ParserException as e:
-            print("Caught %s while parsing SwitchStatement switch expression" % str(e))
+            print("Caught %s while parsing SwitchStatement switch expression"
+                % str(e))
             raise e
 
         expect_token(RightParenToken)
@@ -1412,8 +1482,9 @@ class SwitchStatement(Statement):
                 nextStaticCase = CaseNotAStatement.parse(environment)
                 staticCases.append(nextStaticCase)
             except ParserException as e:
-                print("Caught %s while parsing SwitchStatement case not-a-statement no %d" % (
-                    str(e),
+                print(("Caught %s while parsing SwitchStatement case "
+                    "not-a-statement no %d")
+                    % (str(e),
                     1 + len(staticCases)))
                 raise e
 
@@ -1421,7 +1492,9 @@ class SwitchStatement(Statement):
             try:
                 staticDefault = DefaultNotAStatement.parse(environment)
             except ParserException as e:
-                print("Caught %s while parsing SwitchStatement default not-a-statement" % str(e))
+                print(("Caught %s while parsing SwitchStatement default "
+                    "not-a-statement")
+                    % str(e))
                 raise e
 
         expect_token(RightBraceToken)
@@ -1459,8 +1532,8 @@ class CaseNotAStatement:
         try:
             staticPrimaryExpression = PrimaryExpression.parse(environment)
         except ParserException as e:
-            print("Caught " + str(e) + " while parsing CaseNotAStatement \
-            case expression")
+            print("Caught %s while parsing CaseNotAStatement case expression"
+                % str(e))
             raise e
 
         expect_token(ColonToken)
@@ -1468,8 +1541,8 @@ class CaseNotAStatement:
         try:
             staticStatements = Statements.parse(environment)
         except ParserException as e:
-            print("Caught " + str(e) + " while parsing CaseNotAStatement \
-            case statements")
+            print("Caught %s while parsing CaseNotAStatement case statements"
+                % str(e))
             raise e
 
         return CaseNotAStatement(staticPrimaryExpression, staticStatements)
@@ -1496,8 +1569,8 @@ class DefaultNotAStatement:
         try:
             staticStatements = Statements.parse(environment)
         except ParserException as e:
-            print("Caught " + str(e) + " while parsing CaseNotAStatement \
-            case statements")
+            print("Caught %s while parsing CaseNotAStatement case statements"
+                % str(e))
             raise e
 
         return DefaultNotAStatement(staticStatements)
@@ -1527,8 +1600,8 @@ class WhileStatement(Statement):
         try:
             staticWhileExpression = Expression.parse(environment)
         except ParserException as e:
-            print("Caught " + str(e) + " while parsing WhileStatement \
-            while expression")
+            print("Caught %s while parsing WhileStatement while expression"
+                % str(e))
             raise e
 
         expect_token(RightParenToken)
@@ -1538,8 +1611,7 @@ class WhileStatement(Statement):
         try:
             staticDoStatements = Statements.parse(environment)
         except ParserException as e:
-            print("Caught " + str(e) + " while parsing WhileStatement \
-            statements")
+            print("Caught %s while parsing WhileStatement statements" % str(e))
             raise e
 
         expect_token(RightBraceToken)

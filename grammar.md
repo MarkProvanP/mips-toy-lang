@@ -19,7 +19,10 @@ function-define ::=
 
 function-signature-arguments ::=
 	ε
-	type name { ',' type name } ;
+	function-signature-declare { ',' function-signature-declare } ;
+
+function-signature-declare ::=
+	type name
 
 type ::=
 	ident

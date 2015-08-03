@@ -49,11 +49,18 @@ class ParserWrongTokenException(ParserException):
             x = str(self.expected.__name__)
         else:
             x = str(self.expected)
-        return "ParserWrongTokenException: expected %s but got %s" % (x, str(type(self.token)))
+        return ("ParserWrongTokenException: expected %s but got %s,\n"
+            "on line %d between char %d and %d\n"
+            % (x,
+                str(type(self.token)),
+                self.token.lineNo,
+                self.token.charStart,
+                self.token.charEnd
+                ))
 
 class ParserFunctionDefineWithoutDeclareException(ParserException):
-    def __init__(self, typeAndName):
-        self.typeAndName = typeAndName
+    def __init__(self, functionName):
+        self.functionName = functionName
 
     def __str__(self):
         return "ParserFunctionDefineWithoutDeclareException: function %s defined without having been declared" % self.functionName
