@@ -287,11 +287,11 @@ class Lexer:
 
     @staticmethod
     def isCharIdentStarter(c):
-        return c.isalpha() or c == '_' or c == '-'
+        return c.isalpha() or c == '_'
 
     @staticmethod
     def isCharIdentContinue(c):
-        return Lexer.isCharIdentStarter(c) or c.isdigit()
+        return Lexer.isCharIdentStarter(c) or c.isdigit() or c == "-"
 
 class LexerException(Exception):
     def __init__(self, string, expected):

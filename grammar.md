@@ -122,10 +122,13 @@ operator ::=
 	'==' | '!=' | '>' | '<' | '<=' | '>=' ;`
 
 ident ::=
-	letter_ident { letter_ident | digit } ;
+	ident-start-char { ident-continue-char } ;
 
-letter_ident ::=
-	"a"..."z" | "A"..."Z" | "_" | "-" ;
+ident-start-char ::=
+	"a"..."z" | "A"..."Z" | "_" ;
+
+ident-continue-char ::=
+	ident-start-char | "-" | "0..9" ;
 
 number ::=
 	uint_2 | uint_8 | uint_10 | uint_16 | int_10
