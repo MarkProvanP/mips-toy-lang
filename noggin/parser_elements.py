@@ -17,7 +17,7 @@ from lexer_tokens import Token,\
     SwitchToken, WhileToken,\
     StatementStartingTokens, DefineArgumentContinueTokens
 
-from parser_code import Parser, ParserException,\
+from parser_code import Parser, Environment, ParserException,\
     ParserWrongTokenException, ParserFunctionDefineWithoutDeclareException,\
     ParserFunctionUseWithoutDeclareException,\
     ParserVariableUseWithoutDeclareException
@@ -54,7 +54,7 @@ class Expression:
     """
 
     @staticmethod
-    def parse(environment={}):
+    def parse(environment=Environment()):
         """Parse an expression."""
         return Expression._fraser_hanson(1, environment)
 
@@ -96,7 +96,7 @@ class PrimaryExpression(Expression):
     """
 
     @staticmethod
-    def parse(environment={}):
+    def parse(environment=Environment()):
         """Parse a primary expression."""
         staticPrimaryExpression = None
         if isinstance(Parser.get_token(), NumberToken):
@@ -178,7 +178,7 @@ class VariableAccessExpression(PrimaryExpression):
         self.declaration = declaration
     
     @staticmethod
-    def parse(environment={}):
+    def parse(environment=Environment()):
         staticVariableName = None
         staticDeclaration = None
         
@@ -191,12 +191,9 @@ class VariableAccessExpression(PrimaryExpression):
         
         # Look up environment to see if this function has been declared yet.
         k = str(staticVariableName)
-        try:
-            staticDeclaration = environment[k]
-            # Then this variable name is already in the environment
-        except KeyError as e:
+        if not environment.contains(k):
             raise ParserVariableUseWithoutDeclareException(staticVariableName)
-        
+
         return VariableAccessExpression(
             staticVariableName,
             staticDeclaration)
@@ -225,7 +222,7 @@ class ArrayAccessExpression(PrimaryExpression):
         self.levelExpression = levelExpression
 
     @staticmethod
-    def parse(environment={}):
+    def parse(environment=Environment()):
         """Parse an array access expression."""
         staticArrayName = None
         staticLevelExpression = []
@@ -267,9 +264,9 @@ class ArrayAccessExpression(PrimaryExpression):
 
     def __str__(self):
         """Return a noggin source code representation."""
-        s = self.arrayName
+        s = str(self.arrayName)
         for le in self.levelExpression:
-            s += '[%s]' % le
+            s += '[%s]' % str(le)
         return s
 
 
@@ -303,7 +300,7 @@ class FunctionCallExpression(PrimaryExpression):
         self.callArguments = callArguments
 
     @staticmethod
-    def parse(environment={}):
+    def parse(environment=Environment()):
         """Parse a function call expression."""
         staticFirstToken = None
         staticLastToken = None
@@ -322,7 +319,7 @@ class FunctionCallExpression(PrimaryExpression):
         try:
             staticCallArguments = CallArguments.parse(environment)
         except ParserException as e:
-            print("Caught %s while parsing FunctionCallStatement call arguments"
+            print("Caught %s while parsing FunctionCallExpression call arguments"
                 % str(e))
             raise e
 
@@ -372,6 +369,17 @@ class Bool(LiteralExpression):
         """Return a noggin source code representation."""
         return str(self.token)
 
+    def source_ref(self):
+        """Return a string referring to original source code.
+
+        This string will include the original line number and character start
+        and end numbers.
+        """
+        return ("Bool:\n"
+            "%s\n"
+            "at token: %s\n"
+            % (str(self),
+                self.token.source_ref()))
 
 class Ident(LiteralExpression):
 
@@ -391,6 +399,18 @@ class Ident(LiteralExpression):
         """Return a noggin source code representation."""
         return str(self.token)
 
+    def source_ref(self):
+        """Return a string referring to original source code.
+
+        This string will include the original line number and character start
+        and end numbers.
+        """
+        return ("Ident:\n"
+            "%s\n"
+            "at token: %s\n"
+            % (str(self),
+                self.token.source_ref()))
+
 
 class Number(LiteralExpression):
 
@@ -409,6 +429,18 @@ class Number(LiteralExpression):
     def __str__(self):
         """Return a noggin source code representation."""
         return str(self.token)
+
+    def source_ref(self):
+        """Return a string referring to original source code.
+
+        This string will include the original line number and character start
+        and end numbers.
+        """
+        return ("Number:\n"
+            "%s\n"
+            "at token: %s\n"
+            % (str(self),
+                self.token.source_ref()))
 
 
 class Char(LiteralExpression):
@@ -432,6 +464,17 @@ class Char(LiteralExpression):
         """Return a noggin source code representation."""
         return str(self.token)
 
+    def source_ref(self):
+        """Return a string referring to original source code.
+
+        This string will include the original line number and character start
+        and end numbers.
+        """
+        return ("Char:\n"
+            "%s\n"
+            "at token: %s\n"
+            % (str(self),
+                self.token.source_ref()))
 
 class String(LiteralExpression):
 
@@ -451,8 +494,22 @@ class String(LiteralExpression):
 
 
 class Statement:
+
+    """This abstract class is used to parse a statement."""
+
     @staticmethod
-    def parse(environment={}):
+    def parse(environment=Environment()):
+        """Returns tuple of the statement and environment after that statement.
+
+        A statement, if parsed, could return a changed environment. As a result
+        this method will return a tuple of the type:
+
+        (Statement, Environment)
+
+        where the Statement is whatever type of statement was parsed and 
+        Environment is the environment representation, mapping names of
+        variables and functions to their initial declaration.
+        """
         if isinstance(Parser.get_token(), IdentToken):
             if isinstance(Parser.get_relative_token(1), LeftParenToken):
                 return FunctionCallStatement.parse(environment)
@@ -547,7 +604,21 @@ class AssignmentStatement(Statement):
         self.expression = expression
 
     @staticmethod
-    def parse(environment={}):
+    def parse(environment=Environment()):
+        """Returns tuple of assignment statement and resulting environment.
+
+        A statement, if parsed, could return a changed environment. As a result
+        this method will return a tuple of the type:
+
+        (Statement, Environment)
+
+        where the Statement is whatever type of statement was parsed and  
+        Environment is the environment representation, mapping names of
+        variables and functions to their initial declaration.
+
+        An assignment statement will not change the environment, so the original
+        one is returned.
+        """
         staticFirstToken = None
         staticLastToken = None
         staticIdent = None
@@ -571,11 +642,16 @@ class AssignmentStatement(Statement):
 
         staticLastToken = expect_token(SemiColonToken)
 
-        return AssignmentStatement(
+        newStatement = AssignmentStatement(
             staticFirstToken,
             staticLastToken,
             staticIdent,
             staticExpression)
+
+        # An assignment statment will not change the environment, so the 
+        # original one is returned alongside the statement.
+
+        return (newStatement, environment)
 
     def __str__(self):
         """Return a noggin source code representation."""
@@ -589,7 +665,7 @@ class CallArguments:
         self.callExpressions = callExpressions
 
     @staticmethod
-    def parse(environment={}):
+    def parse(environment=Environment()):
         staticCallExpressions = []
 
         if isinstance(Parser.get_token(), RightParenToken):
@@ -643,7 +719,22 @@ class DeclareStatement(Statement):
         self.value = value
 
     @staticmethod
-    def parse(environment={}):
+    def parse(environment=Environment()):
+        """Returns tuple of declaration statement and resulting environment.
+
+        A statement, if parsed, could return a changed environment. As a result
+        this method will return a tuple of the type:
+
+        (Statement, Environment)
+
+        where the Statement is whatever type of statement was parsed and  
+        Environment is the environment representation, mapping names of 
+        variables and functions to their initial declaration.
+
+        A declaration statement will change the environment by adding a new
+        declaration, so the returned environment has this added. The changed
+        environment is copied before the new key-value pair is added.
+        """
         staticFirstToken = None
         staticLastToken = None
         staticVariableType = None
@@ -674,12 +765,20 @@ class DeclareStatement(Statement):
 
         staticLastToken = expect_token(SemiColonToken)
 
-        return DeclareStatement(
+        newStatement = DeclareStatement(
             staticFirstToken,
             staticLastToken,
             staticVariableType,
             staticVariableName,
             staticValue)
+
+        # The declare statement will change the environment.
+
+        newEnvironment = environment.copy()
+
+        newEnvironment.add(str(staticVariableName), newStatement)
+
+        return (newStatement, newEnvironment)
 
     def __str__(self):
         """Return a noggin source code representation."""
@@ -713,7 +812,7 @@ class Type:
         self.arrayDimension = arrayDimension
 
     @staticmethod
-    def parse(environment={}):
+    def parse(environment=Environment()):
         staticIdent = None
         staticArrayDimension = 0
 
@@ -741,6 +840,18 @@ class Type:
             s += "[]"
         return s
 
+    def source_ref(self):
+        """Return a string referring to original source code.
+
+        This string will include the original line number and character start
+        and end numbers.
+        """
+        return ("Type:\n"
+            "%s\n"
+            "at token: %s\n"
+            % (str(self),
+                self.ident.source_ref()))
+
 class Name:
     ident = None
 
@@ -748,7 +859,7 @@ class Name:
         self.ident = ident
 
     @staticmethod
-    def parse(environment={}):
+    def parse(environment=Environment()):
         ident = None
 
         if isinstance(Parser.get_token(), IdentToken):
@@ -763,6 +874,18 @@ class Name:
         """Return a noggin source code representation"""
         return str(self.ident)
 
+    def source_ref(self):
+        """Return a string referring to original source code.
+
+        This string will include the original line number and character start
+        and end numbers.
+        """
+        return ("Name:\n"
+            "%s\n"
+            "at token: %s\n"
+            % (str(self),
+                self.ident.source_ref()))
+
 class FunctionSignatureDeclare:
     sigVariableType = None
     sigVariableName = None
@@ -772,7 +895,7 @@ class FunctionSignatureDeclare:
         self.sigVariableName = sigVariableName
 
     @staticmethod
-    def parse(environment={}):
+    def parse(environment=Environment()):
         staticSigVariableType = None
         staticSigVariableName = None
 
@@ -799,6 +922,20 @@ class FunctionSignatureDeclare:
         """Return a noggin source code representation"""
         return "%s %s" % (self.sigVariableType, self.sigVariableName)
 
+    def source_ref(self):
+        """Return a string referring to original source code.
+
+        This string will include the original line number and character start
+        and end numbers.
+        """
+        return ("Function signature declare:\n"
+            "%s\n"
+            "between token: %s\n"
+            "and token: %s\n"
+            % (str(self),
+                self.sigVariableType.source_ref(),
+                self.sigVariableName.source_ref()))
+
 class FunctionSignatureArguments:
     signatureArguments = []
 
@@ -806,7 +943,7 @@ class FunctionSignatureArguments:
         self.signatureArguments = signatureArguments
 
     @staticmethod
-    def parse(environment={}):
+    def parse(environment=Environment()):
         staticFunctionSignatureArguments = []
 
         firstSignatureDeclare = FunctionSignatureDeclare.parse()
@@ -844,14 +981,32 @@ class FallThroughStatement(Statement):
         self.token = token
 
     @staticmethod
-    def parse(environment={}):
+    def parse(environment=Environment()):
+        """Returns tuple of fallthrough statement and resulting environment.
+
+        A statement, if parsed, could return a changed environment. As a result
+        this method will return a tuple of the type:
+
+        (Statement, Environment)
+
+        where the Statement is whatever type of statement was parsed and 
+        Environment is the environment representation, mapping names of
+        variables and functions to their initial declaration.
+
+        A fallthrough statement will not change the environment, so the original
+        one is returned.
+        """
         staticToken = None
 
         staticToken = expect_token(FallThroughToken)
 
         expect_token(SemiColonToken)
 
-        return FallThroughStatement(staticToken)
+        newStatement = FallThroughStatement(staticToken)
+
+        # No change to the environment
+
+        return (newStatement, environment)
 
     def __str__(self):
         """Return a noggin source code representation."""
@@ -863,7 +1018,7 @@ class FallThroughStatement(Statement):
         This string will include the original line number and character start
         and end numbers.
         """
-        return ("Fall through statement:\n"
+        return ("Fallthrough statement:\n"
             "%s\n"
             "at token: %s\n"
             % (str(self),
@@ -877,12 +1032,32 @@ class BreakStatement(Statement):
         self.token = token
 
     @staticmethod
-    def parse(environment={}):
+    def parse(environment=Environment()):
+        """Returns tuple of break statement and resulting environment.
+
+        A statement, if parsed, could return a changed environment. As a result
+        this method will return a tuple of the type:
+
+        (Statement, Environment)
+
+        where the Statement is whatever type of statement was parsed and 
+        Environment is the environment representation, mapping names of 
+        variables and functions to their initial declaration.
+
+        A break statement will not change the environment, so the original
+        one is returned.
+        """
         staticToken = None
 
         staticToken = expect_token(BreakToken)
+
         expect_token(SemiColonToken)
-        return BreakStatement(staticToken)
+        
+        newStatement = BreakStatement(staticToken)
+
+        # No change to the environment
+
+        return (newStatement, environment)
 
     def __str__(self):
         """Return a noggin source code representation."""
@@ -919,7 +1094,21 @@ class DoWhileStatement(Statement):
         self.whileExpression = whileExpression
 
     @staticmethod
-    def parse(environment={}):
+    def parse(environment=Environment()):
+        """Returns tuple of do-while statement and resulting environment.
+
+        A statement, if parsed, could return a changed environment. As a result
+        this method will return a tuple of the type:
+
+        (Statement, Environment)
+
+        where the Statement is whatever type of statement was parsed and 
+        Environment is the environment representation, mapping names of
+        variables and functions to their initial declaration.
+
+        A do-while statement will not change the environment, so the original
+        one is returned.
+        """
         staticFirstToken = None
         staticLastToken = None
         staticDoStatements = None
@@ -951,11 +1140,15 @@ class DoWhileStatement(Statement):
 
         staticLastToken = expect_token(RightParenToken)
 
-        return DoWhileStatement(
+        newStatement = DoWhileStatement(
             staticFirstToken,
             staticLastToken,
             staticDoStatements,
             staticWhileExpression)
+
+        # No change to the environment
+
+        return (newStatement, environment)
 
     def __str__(self):
         """Return a noggin source code representation."""
@@ -1000,7 +1193,7 @@ class FunctionDeclaration:
         self.signatureArguments = signatureArguments
 
     @staticmethod
-    def parse(environment={}):
+    def parse(environment=Environment()):
         staticFirstToken = None
         staticLastToken = None
         staticFunctionType = None
@@ -1111,7 +1304,7 @@ class FunctionDefinition:
         k = str(staticFunctionName)
         try:
             # Then this function type and name is already in the environment
-            staticDeclaration = globalEnvironment[k]
+            staticDeclaration = globalEnvironment.get(k)
         except KeyError as e:
             raise ParserFunctionDefineWithoutDeclareException(
                 staticFunctionName)
@@ -1133,12 +1326,7 @@ class FunctionDefinition:
         for sigDeclare in staticSignatureArguments.signatureArguments:
             sigDeclareName = str(sigDeclare.sigVariableName)
             print("sigDeclareName: %s", sigDeclareName)
-            if sigDeclareName in globalEnvironment:
-                raise ParserRepeatedDeclarationException(
-                    globalEnvironment(sigDeclareName),
-                    sigDeclare)
-            else:
-                functionEnvironment[sigDeclareName] = sigDeclare
+            functionEnvironment.add(sigDeclareName, sigDeclare)
 
 
         expect_token(RightParenToken)
@@ -1206,7 +1394,21 @@ class FunctionCallStatement(Statement):
         self.declaration = declaration
 
     @staticmethod
-    def parse(environment={}):
+    def parse(environment=Environment()):
+        """Returns tuple of function call statement and resulting environment.
+
+        A statement, if parsed, could return a changed environment. As a result
+        this method will return a tuple of the type:
+
+        (Statement, Environment)
+
+        where the Statement is whatever type of statement was parsed and the 
+        Environment is the environment representation, mapping names of variables and
+        and functions to their initial declaration.
+
+        A function call statement will not change the environment, so the
+        original one is returned.
+        """
         staticFirstToken = None
         staticLastToken = None
         staticIdent = None
@@ -1223,7 +1425,7 @@ class FunctionCallStatement(Statement):
         # Look up environment to see if this function has been declared yet.
         k = str(staticIdent)
         try:
-            staticDeclaration = environment[k]
+            staticDeclaration = environment.get(k)
             # Then this function type and name is already in the environment
         except KeyError as e:
             raise ParserFunctionUseWithoutDeclareException(staticIdent)
@@ -1242,12 +1444,16 @@ class FunctionCallStatement(Statement):
 
         expect_token(SemiColonToken)
 
-        return FunctionCallStatement(
+        newStatement = FunctionCallStatement(
             staticFirstToken,
             staticLastToken,
             staticIdent,
             staticCallArguments,
             staticDeclaration)
+
+        # No change to the environment
+
+        return (newStatement, environment)
 
     def __str__(self):
         """Return a noggin source code representation."""
@@ -1263,7 +1469,21 @@ class IfElseStatement(Statement):
         self.elseStatements = elseStatements
 
     @staticmethod
-    def parse(environment={}):
+    def parse(environment=Environment()):
+        """Returns tuple of if-else statement and resulting environment.
+
+        A statement, if parsed, could return a changed environment. As a result
+        this method will return a tuple of the type:
+
+        (Statement, Environment)
+
+        where the Statement is whatever type of statement was parsed and 
+        Environment is the environment representation, mapping names of
+        variables and functions to their initial declaration.
+
+        An if-else statement will not change the environment, so the original
+        one is returned.
+        """
         staticIfThens = []
         staticElseStatements = None
 
@@ -1287,6 +1507,7 @@ class IfElseStatement(Statement):
                     "condition-statement no %d")
                     % (str(e),
                     2 + len(staticIfThens)))
+                raise e
             staticIfThens.append(staticNextIf)
 
         if isinstance(Parser.get_token(), ElseToken):
@@ -1294,7 +1515,10 @@ class IfElseStatement(Statement):
         elif Statement.able_to_start()\
                 or isinstance(Parser.get_token(), RightBraceToken):
             # If this is just an 'if' with no 'else'
-            return IfElseStatement(staticIfThens, None)
+            newStatement = IfElseStatement(staticIfThens, staticElseStatements)
+            # No change to the environment
+
+            return (newStatement, environment)
         else:
             raise ParserWrongTokenException(Parser.get_token(), ElseToken)
 
@@ -1309,7 +1533,11 @@ class IfElseStatement(Statement):
 
         expect_token(RightBraceToken)
 
-        return IfElseStatement(staticIfThens, staticElseStatements)
+        newStatement = IfElseStatement(staticIfThens, staticElseStatements)
+
+        # No change to the environment
+
+        return (newStatement, environment)
 
     def __str__(self):
         """Return a noggin source code representation."""
@@ -1335,7 +1563,7 @@ class IfThen:
         self.then = then
 
     @staticmethod
-    def parse(environment={}):
+    def parse(environment=Environment()):
         staticCondition = None
         staticThen = None
 
@@ -1382,14 +1610,14 @@ class Program:
         self.functionDefinitions = functionDefinitions
 
     @staticmethod
-    def parse(environment={}):
+    def parse(environment=Environment()):
         staticFunctionDeclarations = []
         staticGlobalVariableDeclarations = []
         staticFunctionDefinitions = []
 
-        # As each declaration is made, add to the 'environment' dict
+        # As each declaration is made, add to the 'environment' object
 
-        environment = {}
+        environment = Environment()
 
         # Parse all function and global variable declarations
         while isinstance(Parser.get_token(), DeclareToken):
@@ -1400,7 +1628,7 @@ class Program:
                     staticFunctionDeclarations.append(nextFunctionDeclaration)
                     functionName = nextFunctionDeclaration.functionName
                     k = str(functionName)
-                    environment[k] = nextFunctionDeclaration
+                    environment.add(k, nextFunctionDeclaration)
                 except ParserException as e:
                     print(("Caught %s while parsing Program function "
                         "declaration no %d")
@@ -1409,13 +1637,12 @@ class Program:
                     raise e
             else:
                 try:
-                    nextGlobalVariableDeclaration = DeclareStatement.parse(
+                    (nextGblVarDeclare, newEnv) = DeclareStatement.parse(
                         environment)
-                    staticGlobalVariableDeclarations.append(\
-                        nextGlobalVariableDeclaration)
-                    variableName = nextGlobalVariableDeclaration.variableName
-                    k = str(variableName)
-                    environment[k] = nextGlobalVariableDeclaration
+                    staticGlobalVariableDeclarations.append(nextGblVarDeclare)
+                    # the newEnv is the new environment after parsing the
+                    # declare statement
+                    environment = newEnv
                 except ParserException as e:
                     print(("Caught %s while parsing Program global variable "
                         "declaration no %d")
@@ -1478,7 +1705,7 @@ class Program:
                 len(self.globalVariableDeclarations),
                 len(self.functionDefinitions)))
 
-class ReturnStatement:
+class ReturnStatement(Statement):
     """Class for a return statement.
 
     """
@@ -1488,7 +1715,7 @@ class ReturnStatement:
         self.expression = expression
 
     @staticmethod
-    def parse(environment={}):
+    def parse(environment=Environment()):
         staticExpression = None
 
         expect_token(ReturnToken)
@@ -1501,7 +1728,11 @@ class ReturnStatement:
 
         expect_token(SemiColonToken)
 
-        return ReturnStatement(staticExpression)
+        newStatement = ReturnStatement(staticExpression)
+
+        # No change to the environment
+
+        return (newStatement, environment)
 
     def __str__(self):
         """Return a noggin source code representation."""
@@ -1515,11 +1746,18 @@ class Statements:
         self.statements = statements
 
     @staticmethod
-    def parse(environment={}):
+    def parse(environment=Environment()):
         staticStatements = []
         while Statement.able_to_start():
             try:
-                nextStaticStatement = Statement.parse(environment)
+                # Each statement could change the environment for the next 
+                # statements, so each Statement.parse() call returns a tuple
+                # of the parsed statement and the environment after that 
+                # statement, regardless of whether the environment did change.
+                print("Parse Statements, v:")
+                v = Statement.parse(environment)
+                print("type(v): %s" % type(v))
+                (nextStaticStatement, newEnv) = v
             except ParserException as e:
                 print("Caught %s while parsing Statements statement no %d" % (
                     str(e),
@@ -1548,7 +1786,7 @@ class SwitchStatement(Statement):
         self.default = default
 
     @staticmethod
-    def parse(environment={}):
+    def parse(environment=Environment()):
         staticSwitchExpression = None
         staticCases = []
         staticDefault = None
@@ -1590,19 +1828,23 @@ class SwitchStatement(Statement):
 
         expect_token(RightBraceToken)
 
-        return SwitchStatement(
+        newStatement = SwitchStatement(
             staticSwitchExpression,
             staticCases,
             staticDefault)
 
+        # No change to the environment
+
+        return (newStatement, environment)
+
     def __str__(self):
         """Return a noggin source code representation."""
-        s = "switch (%s) {\n" % self.expression
+        s = "switch (%s) {\n" % self.switchExpression
         for c in self.cases:
             s += "%s\n" % str(c)
         if self.default:
             s += "%s\n" % str(c)
-        return c
+        return s
 
 
 class CaseNotAStatement:
@@ -1614,7 +1856,7 @@ class CaseNotAStatement:
         self.statements = statements
 
     @staticmethod
-    def parse(environment={}):
+    def parse(environment=Environment()):
         staticPrimaryExpression = None
         staticStatements = None
 
@@ -1650,7 +1892,7 @@ class DefaultNotAStatement:
         self.statements = statements
 
     @staticmethod
-    def parse(environment={}):
+    def parse(environment=Environment()):
         staticStatements = None
 
         expect_token(DefaultToken)
@@ -1680,7 +1922,7 @@ class WhileStatement(Statement):
         self.doStatements = doStatements
 
     @staticmethod
-    def parse(environment={}):
+    def parse(environment=Environment()):
         staticWhileExpression = None
         staticDoStatements = None
 
@@ -1707,7 +1949,11 @@ class WhileStatement(Statement):
 
         expect_token(RightBraceToken)
 
-        return WhileStatement(staticWhileExpression, staticDoStatements)
+        newStatement = WhileStatement(staticWhileExpression, staticDoStatements)
+
+        # No change to the environment
+
+        return (newStatement, environment)
 
     def __str__(self):
         """Return a noggin source code representation."""

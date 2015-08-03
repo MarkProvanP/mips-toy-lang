@@ -2,7 +2,7 @@
 # test declaration as progrram child
 declare function void hello();
 
-declare int hello;
+declare int helloInt;
 declare string derp = "derp";
 
 

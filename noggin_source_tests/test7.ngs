@@ -1,3 +1,21 @@
+declare function void testIf(int a);
+declare function void testIfElse(bool b);
+declare function void testIfElif(int a);
+declare function void testIfElifElse(bool otherCondition);
+declare function void testMultipleElifs();
+
+declare function void hello(string s);
+declare function void doSomething();
+declare function void print(string s);
+declare function void doAnotherThing();
+declare function void doSomethingElse();
+
+declare bool condition = false;
+declare bool c = true;
+declare bool d = false;
+declare function void derp();
+declare int no = 0x4;
+
 function void testIf(int a) {
   if (a < 5) {
     print(hello);
@@ -21,7 +39,7 @@ function void testIfElif(int a) {
   }
 }
 
-function void testIfElifElse(bool c) {
+function void testIfElifElse(bool otherCondition) {
   if (false) {
     doSomething();
   } elif (otherCondition) {
@@ -32,5 +50,5 @@ function void testIfElifElse(bool c) {
 }
 
 function void testMultipleElifs() {
-  if(c) {} elif (d){doSomething();} elif(condition) {anotherThing();} else { derp(); }
+  if(c) {} elif (d){doSomething();} elif(condition) {doAnotherThing();} else { derp(); }
 }

@@ -1,3 +1,9 @@
+declare function int notArray();
+declare function int[] arrayOne();
+declare function int[][] arrayTwo();
+declare function void testOne();
+declare string hello = "hello!";
+
 function int notArray() {
   return hello;
 }

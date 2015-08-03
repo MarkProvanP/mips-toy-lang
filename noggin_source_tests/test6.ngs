@@ -1,3 +1,7 @@
+declare function void hello();
+declare function void doSomething();
+declare function void doSomethingElse();
+
 # test6.ngs
 # this should test all the different operators
 

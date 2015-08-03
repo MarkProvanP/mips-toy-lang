@@ -1,3 +1,6 @@
+declare function void testChar();
+declare function int testString();
+
 # Test characters and function type and name
 
 function void testChar() {

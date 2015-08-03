@@ -1,5 +1,11 @@
+declare function void sw(char hello);
+declare function void sw1(char hello);
+declare function void doSomething();
+declare function void doAnotherThing();
+declare function void lol();
+
 # test switch statement
-function void sw() {
+function void sw(char hello) {
   switch(hello) {
   case 'a':
     doSomething();
@@ -11,7 +17,7 @@ function void sw() {
   }
 }
 
-function void sw1() {
+function void sw1(char hello) {
   switch(hello) {
   case 'a':
     doSomething();

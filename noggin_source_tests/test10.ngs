@@ -1,4 +1,5 @@
 # test out different number bases and signed ints
+declare function void hello();
 
 function void hello() {
   declare uint myDecimal = 8239;
