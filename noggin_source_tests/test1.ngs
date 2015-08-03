@@ -1,3 +1,9 @@
+declare function void empty();
+declare function void print(string s);
+declare function void tw();
+declare int h = 2;
+declare string hello = "hello!";
+
 # test1.ngs
 function void empty() { }
 

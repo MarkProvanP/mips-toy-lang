@@ -1,3 +1,5 @@
+declare function void arguments(a a, b b, d c, e d);
+
 function void arguments(a a, b b, d c, e d) {
 	a = b;
 	c = d;

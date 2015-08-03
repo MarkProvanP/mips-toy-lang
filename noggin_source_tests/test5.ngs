@@ -1,3 +1,7 @@
+declare function void equals();
+declare function void print(string s);
+declare function void doNothing();
+
 function void equals() {
   # declare x to be of type 'int'
   declare int x;

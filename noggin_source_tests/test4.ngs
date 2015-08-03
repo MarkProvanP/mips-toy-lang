@@ -1,4 +1,14 @@
 # test4.ngs
+declare function void empty();
+declare function void oneAssignment();
+declare function void arguments(int a, bool b, double c, var d);
+declare function void word(int one, int two);
+declare function void hello();
+declare function void perform(int something);
+declare bool something = false;
+declare bool this = true;
+declare int derp = 0o113;
+declare function void m(int n);
 
 function void empty() { }
 
@@ -14,6 +24,7 @@ function void arguments(int a, bool b, double c, var d) {
 
 function void word (int one ,int two ) {
 	declare int seven;
+	declare int i = 10;
 	seven = two + one ;
 	do {
 		word (2+5, 4);
@@ -25,7 +36,7 @@ function void hello() {
 	if (this) {
 		perform(something);
 	} else {
-		myvar = 9;
+		declare int myvar = 9;
 	}
 }
 
