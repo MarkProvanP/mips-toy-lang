@@ -1076,6 +1076,182 @@ class BreakStatement(Statement):
                 self.token.source_ref()))
 
 
+class ForLoopStatement(Statement):
+    firstToken = None
+    lastToken = None
+    initialisation = None
+    condition = None
+    afterthought = None
+    statements = None
+
+    def __init__(
+            self,
+            firstToken,
+            lastToken,
+            initialisation,
+            condition,
+            afterthought,
+            statements):
+        self.firstToken = firstToken
+        self.lastToken = lastToken
+        self.initialisation = initialisation
+        self.condition = condition
+        self.afterthought = afterthought
+        self.statements = statements
+
+    @staticmethod
+    def parse(environment=Environment()):
+        """Returns tuple of for loop statement and resulting environment.
+
+        A statement, if parsed, could return a changed environment. As a result
+        this method will return a tuple of the type:
+
+        (Statement, Environment)
+
+        where the Statement is whatever type of statement was parsed and 
+        Environment is the environment representation, mapping names of
+        variables and functions to their initial declaration.
+
+        A for loop statement will not change the environment, so the original
+        one is returned.
+        """
+        staticFirstToken = None
+        staticLastToken = None
+        staticInitialisation = None
+        staticCondition = None
+        staticAfterthought = None
+        staticStatements = None
+
+        staticFirstToken = expect_token(ForToken)
+
+        expect_token(LeftParenToken)
+
+        try:
+            (staticInitialisation, forEnv) = ForInitialisation.parse(environment)
+        except ParserException as e:
+            print("Caught %s while parsing ForLoopStatement initialisation" % str(e))
+            raise e
+
+        expect_token(SemiColonToken)
+
+        try:
+            staticCondition = Expression.parse(forEnv)
+        except ParserException as e:
+            print("Caught %s while parsing ForLoopStatement condition" % str(e))
+            raise e
+
+        expect_token(SemiColonToken)
+
+        try:
+            (staticAfterthought, newEnv) = ForAfterthought.parse(forEnv)
+            environment = newEnv
+        except ParserException as e:
+            print("Caught %s while parsing ForLoopStatement afterthought" % str(e))
+            raise e
+
+        expect_token(RightParenToken)
+
+        expect_token(LeftBraceToken)
+
+        try:
+            staticStatements = Statements.parse(newEnv)
+        except ParserException as e:
+            print("Caught %s while parsing ForLoopStatement statements" % str(e))
+            raise e
+
+        expect_token(RightBraceToken)
+
+        newStatement = ForLoopStatement(
+            staticFirstToken,
+            staticLastToken,
+            staticInitialisation,
+            staticCondition,
+            staticAfterthought,
+            staticStatements)
+
+        # Environment will not have been changed.
+
+        return (newStatement, environment)
+
+class ForInitialisation:
+    variableType = None
+    variableName = None
+    value = None
+
+    def __init__(
+            self,
+            variableType,
+            variableName,
+            value):
+        self.variableType = variableType
+        self.variableName = variableName
+        self.value = value
+
+    @staticmethod
+    def parse(environment=Environment()):
+        """Returns tuple of for loop initialisation and resulting environment.
+
+        A statement, if parsed, could return a changed environment. As a result
+        this method will return a tuple of the type:
+
+        (ForInitialisation, Environment)
+
+        where the Statement is whatever type of statement was parsed and  
+        Environment is the environment representation, mapping names of 
+        variables and functions to their initial declaration.
+
+        A for loop initialisation statement will change the environment by
+        adding a new declaration, so the returned environment has this added.
+        The changed environment is copied before the new key-value pair is
+        added.
+        """
+        staticVariableType = None
+        staticVariableName = None
+        staticValue = None
+
+        try:
+            staticVariableType = Type.parse(environment)
+        except ParserException as e:
+            print("Caught %s while parsing DeclareStatement type" % str(e))
+            raise e
+        
+        try:
+            staticVariableName = Name.parse(environment)
+        except ParserException as e:
+            print("Caught %s while parsing DeclareStatement type" % str(e))
+            raise e
+
+        if isinstance(Parser.get_token(), AssignToken):
+            Parser.advance_token()
+            try:
+                staticValue = PrimaryExpression.parse(environment)
+            except ParserException as e:
+                print("Caught %s while parsing DeclareStatement value" % str(e))
+                raise e
+
+        newStatement = ForInitialisation(
+            staticVariableType,
+            staticVariableName,
+            staticValue)
+
+        # The declare statement will change the environment.
+
+        newEnvironment = environment.copy()
+
+        newEnvironment.add(str(staticVariableName), newStatement)
+
+        return (newStatement, newEnvironment)
+
+    def __str__(self):
+        """Return a noggin source code representation."""
+        if self.value:
+            return ("%s %s = %s;"
+                % (self.variableType, self.variableName, self.value))
+        else:
+            return ("%s %s;"
+                % (self.variableType, self.variableName))
+
+
 class DoWhileStatement(Statement):
     firstToken = None
     lastToken = None

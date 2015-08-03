@@ -40,6 +40,7 @@ statement ::=
 	ifelse
 	while
 	dowhile
+	for-loop
 	return
 	declare
 	switch
@@ -68,6 +69,17 @@ while ::=
 
 dowhile ::=
 	"DO" '{' statements '}' "WHILE" '(' expression ')' ';' ;
+
+(*
+
+forloop ::=
+	"FOR" '(' forloop-initialisation ';' expression ';' forloop-afterthought ')' '{' statements '}'
+
+forloop-initialisation ::=
+	ε
+	type name '=' expression
+	type name '=' expression { ',' name '=' expression }
+*)
 
 return ::=
 	"RETURN" expression ';' ;
