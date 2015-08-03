@@ -20,5 +20,5 @@ function void there() {
 }
 
 function void broke() {
-	print(nothing);
+	#print(nothing);
 }

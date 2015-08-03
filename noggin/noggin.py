@@ -33,6 +33,7 @@ def main():
     try:
         p = Program.parse()
         if printVerbose:
+            print(p.info_str())
             print(p)
     except ParserException as e:
         print(e)
