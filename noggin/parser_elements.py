@@ -20,7 +20,8 @@ from lexer_tokens import Token,\
 from parser_code import Parser, Environment, ParserException,\
     ParserWrongTokenException, ParserFunctionDefineWithoutDeclareException,\
     ParserFunctionUseWithoutDeclareException,\
-    ParserVariableUseWithoutDeclareException
+    ParserVariableUseWithoutDeclareException,\
+    ParserFunctionSignatureDefinitionNotEqualException
 
 
 def expect_token(token):
@@ -337,6 +338,7 @@ class FunctionCallExpression(PrimaryExpression):
 
 
 class LiteralExpression(PrimaryExpression):
+    token = None
 
     """Literal expression class.
 
@@ -344,7 +346,11 @@ class LiteralExpression(PrimaryExpression):
     code, e.g. a number literal or a string literal.
     """
 
-    pass
+    def __init__(self, token):
+        self.token = token
+
+    def __eq__(self, other):
+        return self.token.original == other.token.original
 
 
 class Bool(LiteralExpression):
@@ -359,7 +365,7 @@ class Bool(LiteralExpression):
         Arguments:
         token -- the BoolToken from the original source code
         """
-        self.token = token
+        super(Bool, self).__init__(token)
 
     def eval(self):
         """Return the original value evaluated as Python."""
@@ -393,7 +399,7 @@ class Ident(LiteralExpression):
         Arguments:
         token -- the IdentToken from the original source code
         """
-        self.token = token
+        super(Ident, self).__init__(token)
 
     def __str__(self):
         """Return a noggin source code representation."""
@@ -424,7 +430,7 @@ class Number(LiteralExpression):
         Arguments:
         token -- the NumberToken from the original source code
         """
-        self.token = token
+        super(Number, self).__init__(token)
 
     def __str__(self):
         """Return a noggin source code representation."""
@@ -455,7 +461,7 @@ class Char(LiteralExpression):
         Arguments:
         token -- the CharToken from the original source code
         """
-        self.token = token
+        super(Char, self).__init__(token)
 
     def eval(self):
         return chr(self.token)
@@ -483,7 +489,12 @@ class String(LiteralExpression):
     token = None
 
     def __init__(self, token):
-        self.token = token
+        """Construct a string literal.
+
+        Arguments:
+        token -- the StringToken from the original source code
+        """
+        super(String, self).__init__(token)
 
     def eval(self):
         return str(self.token)
@@ -901,6 +912,9 @@ class Type:
             % (str(self),
                 self.ident.source_ref()))
 
+    def __eq__(self, other):
+        return self.ident == other.ident
+
 class Name:
     ident = None
 
@@ -1021,6 +1035,21 @@ class FunctionSignatureArguments:
             s += str(da)
             num += 1
         return s
+
+    def check_type_equality(self, other):
+        num = 0
+        try:
+            for s in self.signatureArguments:
+                t = other.signatureArguments[num]
+                num += 1
+                if not s.sigVariableType == t.sigVariableType:
+                    print("s.sigVariableType: %s" % str(s.sigVariableType))
+                    print("t.sigVariableType: %s" % str(t.sigVariableType))
+                    return False 
+        except IndexError as e:
+            return False
+        return True
+
 
 
 class FallThroughStatement(Statement):
@@ -1543,6 +1572,7 @@ class FunctionDefinition:
             print("Caught %s while parsing Function declare arguments" % str(e))
             raise e
 
+
         # Now, after parsing the function arguments, the environment now needs
         # to include these arguments as well as the ones already in the global
         # one.
@@ -1566,7 +1596,7 @@ class FunctionDefinition:
 
         staticLastToken = expect_token(RightBraceToken)
 
-        return FunctionDefinition(
+        functionDefinition = FunctionDefinition(
             staticFirstToken,
             staticLastToken,
             staticFunctionType,
@@ -1574,6 +1604,20 @@ class FunctionDefinition:
             staticSignatureArguments,
             staticStatements,
             staticDeclaration)
+
+        # We need to check that the definition argument types are equal to the
+        # ones in the declaration
+
+        print("Checking type equality:")
+        if not staticSignatureArguments.check_type_equality(
+            staticDeclaration.signatureArguments):
+            raise ParserFunctionSignatureDefinitionNotEqualException(
+                staticDeclaration,
+                functionDefinition)
+        print(staticSignatureArguments)
+        print(staticDeclaration.signatureArguments)
+
+        return functionDefinition
 
     def __str__(self):
         """Return a noggin source code representation."""

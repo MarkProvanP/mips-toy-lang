@@ -91,21 +91,27 @@ class ParserFunctionDefineWithoutDeclareException(ParserException):
         self.functionName = functionName
 
     def __str__(self):
-        return "ParserFunctionDefineWithoutDeclareException: function %s defined without having been declared" % self.functionName.source_ref()
+        return ("ParserFunctionDefineWithoutDeclareException: function %s "
+            "defined without having been declared"
+            % self.functionName.source_ref())
 
 class ParserFunctionUseWithoutDeclareException(ParserException):
     def __init__(self, functionName):
         self.functionName = functionName
 
     def __str__(self):
-        return "ParserFunctionUseWithoutDeclareException: function %s used before being declared" % self.functionName.source_ref()
+        return ("ParserFunctionUseWithoutDeclareException: function %s used "
+            "before being declared"
+            % self.functionName.source_ref())
         
 class ParserVariableUseWithoutDeclareException(ParserException):
     def __init__(self, variableName):
         self.variableName = variableName
 
     def __str__(self):
-        return "ParserVariableUseWithoutDeclareException: variable %s used before being declared" % self.variableName.source_ref()
+        return ("ParserVariableUseWithoutDeclareException: variable %s used "
+            "before being declared"
+            % self.variableName.source_ref())
 
 class ParserRepeatedDeclarationException(ParserException):
     def __init__(self, originalDeclaration, newDeclaration):
@@ -113,4 +119,18 @@ class ParserRepeatedDeclarationException(ParserException):
         self.newDeclaration = newDeclaration
 
     def __str__(self):
-        return "ParserRepeatedDeclarationException: original declaration %s repeated %s" % (self.originalDeclaration.source_ref(), self.newDeclaration.source_ref())
+        return ("ParserRepeatedDeclarationException: original declaration %s "
+            "repeated %s"
+            % (self.originalDeclaration.source_ref(),
+                self.newDeclaration.source_ref()))
+
+class ParserFunctionSignatureDefinitionNotEqualException(ParserException):
+    def __init__(self, declaration, definition):
+        self.declaration = declaration
+        self.definition = definition
+
+    def __str__(self):
+        return ("ParserFunctionSignatureDefinitionNotEqualException: function "
+            "definition %s argument types different from those in "
+            "declaration %s"
+            % (self.declaration.source_ref(), self.definition.source_ref()))
