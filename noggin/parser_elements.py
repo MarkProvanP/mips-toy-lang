@@ -696,9 +696,13 @@ class DeclareStatement(Statement):
         This string will include the original line number and character start
         and end numbers.
         """
-        return "Declare statement: \n"\
-            + str(self) + "\n"\
-            + "on line: %d between characters: %d and %d\n" % (-1, -1, -1)
+        return ("Declare statement:\n"
+            "%s\n"
+            "between token: %s\n"
+            "and token: %s\n"
+            % (str(self),
+                self.firstToken.source_ref(),
+                self.lastToken.source_ref()))
             
 class Type:
     ident = None
@@ -834,43 +838,94 @@ class FunctionSignatureArguments:
 
 
 class FallThroughStatement(Statement):
+    token = None
+
+    def __init__(self, token):
+        self.token = token
+
     @staticmethod
     def parse(environment={}):
-        expect_token(FallThroughToken)
+        staticToken = None
+
+        staticToken = expect_token(FallThroughToken)
+
         expect_token(SemiColonToken)
-        return FallThroughStatement()
+
+        return FallThroughStatement(staticToken)
 
     def __str__(self):
         """Return a noggin source code representation."""
         return "fallthrough"
 
+    def source_ref(self):
+        """Return a string referring to original source code.
+
+        This string will include the original line number and character start
+        and end numbers.
+        """
+        return ("Fall through statement:\n"
+            "%s\n"
+            "at token: %s\n"
+            % (str(self),
+                self.token.source_ref()))
+
 
 class BreakStatement(Statement):
+    token = None
+
+    def __init__(self, token):
+        self.token = token
+
     @staticmethod
     def parse(environment={}):
-        expect_token(BreakToken)
+        staticToken = None
+
+        staticToken = expect_token(BreakToken)
         expect_token(SemiColonToken)
-        return BreakStatement()
+        return BreakStatement(staticToken)
 
     def __str__(self):
         """Return a noggin source code representation."""
         return "break"
 
+    def source_ref(self):
+        """Return a string referring to original source code.
+
+        This string will include the original line number and character start
+        and end numbers.
+        """
+        return ("Break statement:\n"
+            "%s\n"
+            "at token: %s\n"
+            % (str(self),
+                self.token.source_ref()))
+
 
 class DoWhileStatement(Statement):
+    firstToken = None
+    lastToken = None
     doStatements = None
     whileExpression = None
 
-    def __init__(self, doStatements, whileExpression):
+    def __init__(
+            self,
+            firstToken,
+            lastToken,
+            doStatements,
+            whileExpression):
+        self.firstToken = firstToken
+        self.lastToken = lastToken
         self.doStatements = doStatements
         self.whileExpression = whileExpression
 
     @staticmethod
     def parse(environment={}):
+        staticFirstToken = None
+        staticLastToken = None
         staticDoStatements = None
         staticWhileExpression = None
 
-        expect_token(DoToken)
+        staticFirstToken = expect_token(DoToken)
 
         expect_token(LeftBraceToken)
 
@@ -894,15 +949,32 @@ class DoWhileStatement(Statement):
                 % str(e))
             raise e
 
-        expect_token(RightParenToken)
+        staticLastToken = expect_token(RightParenToken)
 
-        return DoWhileStatement(staticDoStatements, staticWhileExpression)
+        return DoWhileStatement(
+            staticFirstToken,
+            staticLastToken,
+            staticDoStatements,
+            staticWhileExpression)
 
     def __str__(self):
         """Return a noggin source code representation."""
         return ("do { %s } while (%s)"
             % (self.doStatements, self.whileExpression))
 
+    def source_ref(self):
+        """Return a string referring to original source code.
+
+        This string will include the original line number and character start
+        and end numbers.
+        """
+        return ("Do-while statement:\n"
+            "%s\n"
+            "between token: %s\n"
+            "and token: %s\n"
+            % (str(self),
+                self.firstToken.source_ref(),
+                self.lastToken.source_ref()))
 
 class FunctionDeclaration:
     firstToken = None
@@ -982,11 +1054,13 @@ class FunctionDeclaration:
         This string will include the original line number and character start
         and end numbers.
         """
-        return "Function declare statement: \n"\
-            + str(self) + "\n"\
-            + "between tokens: %s and %s" % (
+        return ("Function declaration:\n"
+            "%s\n"
+            "between token: %s\n"
+            "and token: %s\n"
+            % (str(self),
                 self.firstToken.source_ref(),
-                self.lastToken.source_ref())
+                self.lastToken.source_ref()))
 
 class FunctionDefinition:
     firstToken = None
@@ -1355,6 +1429,7 @@ class Program:
             for k, v in environment.items():
                 print("Key: ", k)
                 print("Value: ", v.source_ref())
+                print("-----")
 
         # Parser all function definitions
         while Parser.has_another_token():
