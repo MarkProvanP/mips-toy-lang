@@ -817,7 +817,7 @@ class FunctionSignatureArguments:
             Parser.advance_token()
 
             nextSignatureDeclare = FunctionSignatureDeclare.parse()
-            staticFunctionSignatureArguments.append(firstSignatureDeclare)
+            staticFunctionSignatureArguments.append(nextSignatureDeclare)
 
         return FunctionSignatureArguments(staticFunctionSignatureArguments)
 
@@ -1018,7 +1018,7 @@ class FunctionDefinition:
 
 
     @staticmethod
-    def parse(environment):
+    def parse(globalEnvironment):
         staticFirstToken = None
         staticLastToken = None
         staticFunctionType = None
@@ -1029,15 +1029,15 @@ class FunctionDefinition:
 
         staticFirstToken = expect_token(FunctionToken)
 
-        staticFunctionType = Type.parse(environment)
+        staticFunctionType = Type.parse(globalEnvironment)
         
-        staticFunctionName = Name.parse(environment)
+        staticFunctionName = Name.parse(globalEnvironment)
 
         # Look up environment to see if this function has been declared yet.
         k = str(staticFunctionName)
         try:
             # Then this function type and name is already in the environment
-            staticDeclaration = environment[k]
+            staticDeclaration = globalEnvironment[k]
         except KeyError as e:
             raise ParserFunctionDefineWithoutDeclareException(
                 staticFunctionName)
@@ -1046,17 +1046,33 @@ class FunctionDefinition:
 
         try:
             staticSignatureArguments = \
-                FunctionSignatureArguments.parse(environment)
+                FunctionSignatureArguments.parse(globalEnvironment)
         except ParserException as e:
             print("Caught %s while parsing Function declare arguments" % str(e))
             raise e
+
+        # Now, after parsing the function arguments, the environment now needs
+        # to include these arguments as well as the ones already in the global
+        # one.
+
+        functionEnvironment = globalEnvironment.copy()
+        for sigDeclare in staticSignatureArguments.signatureArguments:
+            sigDeclareName = str(sigDeclare.sigVariableName)
+            print("sigDeclareName: %s", sigDeclareName)
+            if sigDeclareName in globalEnvironment:
+                raise ParserRepeatedDeclarationException(
+                    globalEnvironment(sigDeclareName),
+                    sigDeclare)
+            else:
+                functionEnvironment[sigDeclareName] = sigDeclare
+
 
         expect_token(RightParenToken)
 
         expect_token(LeftBraceToken)
 
         try:
-            staticStatements = Statements.parse(environment)
+            staticStatements = Statements.parse(functionEnvironment)
         except ParserException as e:
             print("Caught %s while parsing Function statements" % str(e))
             raise e

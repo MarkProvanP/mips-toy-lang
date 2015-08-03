@@ -78,3 +78,11 @@ class ParserVariableUseWithoutDeclareException(ParserException):
 
     def __str__(self):
         return "ParserVariableUseWithoutDeclareException: variable %s used before being declared" % self.variableName
+
+class ParserRepeatedDeclarationException(ParserException):
+    def __init__(self, originalDeclaration, newDeclaration):
+        self.originalDeclaration = originalDeclaration
+        self.newDeclaration = newDeclaration
+
+    def __str__(self):
+        return "ParserRepeatedDeclarationException: original declaration %s repeated %s" % (self.originalDeclaration, self.newDeclaration)
