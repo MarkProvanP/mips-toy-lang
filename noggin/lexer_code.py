@@ -91,11 +91,11 @@ class Lexer:
 
         if Lexer.printVerbose:
             print("Processing character: " + Lexer.c)
-        if Lexer.c.isalpha():
+        if Lexer.isCharIdentStarter(Lexer.c):
             if Lexer.printVerbose:
                 print("Character is alphanumeric: " + Lexer.c)
             Lexer.tokenStartCharNo = Lexer.currentCharNo
-            while Lexer.c.isalpha() or Lexer.c.isdigit():
+            while Lexer.isCharIdentContinue(Lexer.c):
                 Lexer.continue_lexing_type()
             return Lexer.makeWordToken(Lexer.string)
         elif Lexer.c.isdigit():
@@ -284,6 +284,14 @@ class Lexer:
     @staticmethod
     def isCharWhitespace(c):
         return str(c) in string.whitespace
+
+    @staticmethod
+    def isCharIdentStarter(c):
+        return c.isalpha() or c == '_' or c == '-'
+
+    @staticmethod
+    def isCharIdentContinue(c):
+        return Lexer.isCharIdentStarter(c) or c.isdigit()
 
 class LexerException(Exception):
     def __init__(self, string, expected):

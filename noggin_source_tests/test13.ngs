@@ -4,7 +4,7 @@ declare string helloString = "hello";
 declare string thereString = "there";
 declare function void hellothere();
 declare function void print(string s);
-declare function void concat();
+declare function void print_concat(string s1, string s2);
 
 function void hellothere() {
   hello();
@@ -19,6 +19,6 @@ function void there() {
   print(thereString);
 }
 
-function void concat() {
-	print(hello + there);
+function void print_concat(string s1, string s2) {
+	print(s1 + s2);
 }
