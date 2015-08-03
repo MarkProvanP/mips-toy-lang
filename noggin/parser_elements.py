@@ -1754,16 +1754,14 @@ class Statements:
                 # statements, so each Statement.parse() call returns a tuple
                 # of the parsed statement and the environment after that 
                 # statement, regardless of whether the environment did change.
-                print("Parse Statements, v:")
-                v = Statement.parse(environment)
-                print("type(v): %s" % type(v))
-                (nextStaticStatement, newEnv) = v
+                (nextStaticStatement, newEnv) = Statement.parse(environment)
             except ParserException as e:
                 print("Caught %s while parsing Statements statement no %d" % (
                     str(e),
                     1 + len(staticStatements)))
                 raise e
             staticStatements.append(nextStaticStatement)
+            environment = newEnv
         return Statements(staticStatements)
 
     def __str__(self):
