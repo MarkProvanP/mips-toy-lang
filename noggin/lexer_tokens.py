@@ -88,6 +88,11 @@ class StringToken(Token):
         super(StringToken, self).__init__(original, lineNo, charStart, charEnd)
 # Other keywords and punctuation
 
+class ASMToken(Token):
+    def __init__(self, original="asm", lineNo = uln, charStart=ucs, charEnd=uce):
+        super(ASMToken, self).__init__(original, lineNo, charStart, charEnd)
+StatementStartingTokens.append(ASMToken)
+
 class AssignToken(Token):
     def __init__(self, original = "=", lineNo = uln, charStart = ucs, charEnd = uce):
         super(AssignToken, self).__init__(original, lineNo, charStart, charEnd)

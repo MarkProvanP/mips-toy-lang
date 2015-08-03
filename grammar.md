@@ -35,6 +35,7 @@ statements ::=
 	{ statement } ;
 
 statement ::=
+	asm-statement
 	function-call
 	assignment
 	ifelse
@@ -46,6 +47,9 @@ statement ::=
 	switch
 	break
 	fallthrough ;
+
+asm-statement ::=
+	"ASM" '{' { string } '}' ;
 
 function-call ::=
 	function-call-expression ';' ;

@@ -9,13 +9,13 @@ from abc import ABCMeta, abstractmethod
 from lexer_tokens import Token,\
     BoolToken, NumberToken, UIntBase2Token, UIntBase8Token, UIntBase10Token,\
     IntBase10Token, UIntBase16Token, CharToken, StringToken,\
-    AssignToken, BreakToken, CaseToken, ColonToken, CommaToken, DeclareToken,\
-    DefaultToken, DoToken, ElifToken, ElseToken, FallThroughToken,\
-    ForToken, FunctionToken, IdentToken, IfToken, LeftBraceToken,\
-    LeftParenToken, LeftSquareToken, OperatorToken, ReturnToken,\
-    RightBraceToken, RightParenToken, RightSquareToken, SemiColonToken,\
-    SwitchToken, WhileToken,\
-    StatementStartingTokens, DefineArgumentContinueTokens
+    ASMToken, AssignToken, BreakToken, CaseToken, ColonToken, CommaToken,\
+    DeclareToken, DefaultToken, DoToken, ElifToken, ElseToken,\
+    FallThroughToken, ForToken, FunctionToken, IdentToken, IfToken,\
+    LeftBraceToken, LeftParenToken, LeftSquareToken, OperatorToken,\
+    ReturnToken, RightBraceToken, RightParenToken, RightSquareToken,\
+    SemiColonToken, SwitchToken, WhileToken, StatementStartingTokens, \
+    DefineArgumentContinueTokens
 
 from parser_code import Parser, Environment, ParserException,\
     ParserWrongTokenException, ParserFunctionDefineWithoutDeclareException,\
@@ -574,6 +574,13 @@ class Statement:
                 print("Caught %s while parsing Statement, BreakStatement"
                     % str(e))
                 raise e
+        elif isinstance(Parser.get_token(), ASMToken):
+            try:
+                return ASMStatement.parse(environment)
+            except ParserException as e:
+                print("Caught %s while parsing Statement, ASMStatement"
+                    % str(e))
+                raise e
         else:
             raise ParserWrongTokenException(Parser.get_token(),
                 "StatementStartingToken")
@@ -585,6 +592,48 @@ class Statement:
     @abstractmethod
     def source_ref(self): pass
 
+class ASMStatement(Statement):
+    firstToken = None
+    ASMLines = []
+
+    def __init__(self, firstToken, lastToken, ASMLines):
+        firstToken = firstToken
+        lastToken = lastToken
+        self.ASMLines = ASMLines
+
+    @staticmethod
+    def parse(environment=Environment()):
+        staticFirstToken = None
+        staticLastToken = None
+        staticASMLines = []
+
+        staticFirstToken = expect_token(ASMToken)
+
+        expect_token(LeftBraceToken)
+
+        while isinstance(Parser.get_token(), StringToken):
+            nextString = String(Parser.get_token())
+            Parser.advance_token()
+            staticASMLines.append(nextString)
+
+        staticLastToken = expect_token(RightBraceToken)
+
+        newStatement = ASMStatement(
+            staticFirstToken,
+            staticLastToken,
+            staticASMLines)
+
+        # No change to environment
+
+        return (newStatement, environment)
+
+    def __str__(self):
+        """Return a noggin source code representation."""
+        s = "asm {\n"
+        for l in self.ASMLines:
+            s += str(l) + "\n"
+        s += "}"
+        return s
 
 class AssignmentStatement(Statement):
     firstToken = None
