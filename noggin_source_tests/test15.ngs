@@ -1,0 +1,7 @@
+declare function void main();
+
+function void main() {
+	declare uint i = 0b0001;
+	declare uint j;
+	j = i << 2;
+}

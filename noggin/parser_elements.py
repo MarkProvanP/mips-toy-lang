@@ -12,7 +12,7 @@ from lexer_tokens import Token,\
     ASMToken, AssignToken, BreakToken, CaseToken, ColonToken, CommaToken,\
     DeclareToken, DefaultToken, DoToken, ElifToken, ElseToken,\
     FallThroughToken, ForToken, FunctionToken, IdentToken, IfToken,\
-    LeftBraceToken, LeftParenToken, LeftSquareToken, OperatorToken,\
+    LeftBraceToken, LeftParenToken, LeftSquareToken, BinaryOperatorToken,\
     ReturnToken, RightBraceToken, RightParenToken, RightSquareToken,\
     SemiColonToken, SwitchToken, WhileToken, StatementStartingTokens, \
     DefineArgumentContinueTokens
@@ -21,7 +21,9 @@ from parser_code import Parser, Environment, ParserException,\
     ParserWrongTokenException, ParserFunctionDefineWithoutDeclareException,\
     ParserFunctionUseWithoutDeclareException,\
     ParserVariableUseWithoutDeclareException,\
-    ParserFunctionSignatureDefinitionNotEqualException
+    ParserFunctionSignatureDefinitionNotEqualException,\
+    ParserFunctionVariableDeclareDefineMismatchException,\
+    ParserUnknownTypeException
 
 from noggin_types import NT_types_base, NT_char, NT_uint, NT_int, NT_bool, NT_string
 
@@ -66,7 +68,7 @@ class Expression:
 
         This method will parse the tree of binary expressions, expecting to find
         operator tokens between each expression. It will then create the tree
-        based on the precedence value set in the OperatorToken class.
+        based on the precedence value set in the BinaryOperatorToken class.
         """
         i = 0
         left = None
@@ -781,6 +783,7 @@ class DeclareStatement(Statement):
     variableType = None
     variableName = None
     value = None
+    declarationType = 'variable'
 
     def __init__(
             self,
@@ -852,7 +855,6 @@ class DeclareStatement(Statement):
         # The declare statement will change the environment.
 
         newEnvironment = environment.copy()
-
         newEnvironment.add(str(staticVariableName), newStatement)
 
         return (newStatement, newEnvironment)
@@ -885,9 +887,9 @@ class Type:
     nogginType = None
     arrayDimension = 0
 
-    def __init__(self, ident, arrayDimension):
+    def __init__(self, ident, nogginType, arrayDimension):
         self.ident = ident
-        self.nogginType = NT_types_base[ident.token.original]
+        self.nogginType = nogginType
         self.arrayDimension = arrayDimension
 
     @staticmethod
@@ -901,6 +903,11 @@ class Type:
         else:
             raise ParserWrongTokenException(Parser.get_token(), IdentToken)
 
+        try:
+            staticType = environment.types(str(staticIdent))
+        except KeyError as e:
+            raise ParserUnknownTypeException(staticIdent)
+
         while isinstance(Parser.get_token(), LeftSquareToken):
             Parser.advance_token()
             if isinstance(Parser.get_token(), RightSquareToken):
@@ -910,7 +917,7 @@ class Type:
                 raise ParserWrongTokenException(Parser.get_token(),
                     RightSquareToken)
 
-        return Type(staticIdent, staticArrayDimension)
+        return Type(staticIdent, staticType, staticArrayDimension)
 
     def __str__(self):
         """Return a noggin source code representation."""
@@ -1446,6 +1453,7 @@ class FunctionDeclaration:
     functionType = None
     functionName = None
     signatureArguments = None
+    declarationType = 'function'
 
     # Link to the definition of this function
     definition = None
@@ -1621,6 +1629,19 @@ class FunctionDefinition:
             staticStatements,
             staticDeclaration)
 
+        # Check that it was actually a function that was originally declared
+        try:
+            # Then this function type and name is already in the environment
+            staticDeclaration = globalEnvironment.get(k)
+            # Check to see the type of the declaration
+            if not staticDeclaration.declarationType == 'function':
+                raise ParserFunctionVariableDeclareDefineMismatchException(
+                    functionDefinition,
+                    staticDeclaration)
+        except KeyError as e:
+            raise ParserFunctionDefineWithoutDeclareException(
+                staticFunctionName)
+
         # We need to check that the definition argument types are equal to the
         # ones in the declaration
 
@@ -1629,6 +1650,7 @@ class FunctionDefinition:
             raise ParserFunctionSignatureDefinitionNotEqualException(
                 staticDeclaration,
                 functionDefinition)
+
         print(staticSignatureArguments)
         print(staticDeclaration.signatureArguments)
 

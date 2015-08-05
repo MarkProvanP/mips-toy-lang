@@ -184,20 +184,36 @@ class LeftSquareToken(Token):
     def __init__(self, original = "[", lineNo = uln, charStart = ucs, charEnd = uce):
         super(LeftSquareToken, self).__init__(original, lineNo, charStart, charEnd)
 
-class OperatorToken(Token):
+class BinaryOperatorToken(Token):
     def __init__(self, original, lineNo = uln, charStart = ucs, charEnd = uce):
-        super(OperatorToken, self).__init__(original, lineNo, charStart, charEnd)
+        super(BinaryOperatorToken, self).__init__(original, lineNo, charStart, charEnd)
 
     def get_precedence(self):
-        if self.original == "+" or self.original == "-":
-            return 3
-        elif self.original == "*" or self.original == "/":
-            return 4
-        elif self.original == "==" or self.original == "!=":
-            return 1
+        if self.original == "*" or self.original == "/" or self.original == '%':
+            return 10
+        elif self.original == "+" or self.original == "-":
+            return 9
+        elif self.original == '>>' or self.original == '<<':
+            return 8
         elif self.original == ">" or self.original == "<"\
                 or self.original == ">=" or self.original == "<=":
+            return 7
+        elif self.original == "==" or self.original == "!=":
+            return 6
+        elif self.original == '&':
+            return 5
+        elif self.original == '^':
+            return 4
+        elif self.original == '|':
+            return 3
+        elif self.original == '&&':
             return 2
+        elif self.original == '||':
+            return 1
+
+class UnaryOperatorToken(Token):
+    def __init__(self, original, lineNo=uln, charStart=ucs, charEnd=uce):
+        super(UnaryOperatorToken, self).__init__(original, lineNo, charStart, charEnd)
 
 class ReturnToken(Token):
     def __init__(self, original = "return", lineNo = uln, charStart = ucs, charEnd = uce):

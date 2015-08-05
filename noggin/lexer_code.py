@@ -10,7 +10,7 @@ class Lexer:
     tokenStartCharNo = 0
     tokenEndCharNo = 0
 
-    printVerbose = False
+    printVerbose = True
 
     firstCharacterRead = False
     c = ''
@@ -267,8 +267,10 @@ class Lexer:
         elif s == ':':
             return ColonToken(s, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
         elif s == '/' or s == '*' or s == '+' or s == '-' or s == '==' or s == '!='\
-                or s == '>' or s == '<' or s == '>=' or s == '<=':
-            return OperatorToken(s, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
+                or s == '>' or s == '<' or s == '>=' or s == '<=' or s == '<<' or s == '>>':
+            return BinaryOperatorToken(s, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
+        elif s == '++' or s == '--':
+            return UnaryOperatorToken(s, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
 
     @staticmethod
     def isCharPunctuation(c):
@@ -277,11 +279,13 @@ class Lexer:
     @staticmethod
     def isCharSinglePunctuation(c):
         return c == '{' or c == '}' or c == ',' or c == '(' or c == ')' \
-            or c == ';' or c == '*' or c == '/' or c == '[' or c == ']'
+            or c == ';' or c == '*' or c == '/' or c == '[' or c == ']' \
+            or c == '%' or c == '^'
 
     @staticmethod
     def isCharSecondPunctuation(c):
-        return c == '='
+        return c == '=' or c == '&' or c == '|' or c == '<' or c == '>' \
+            or c == '+' or c == '-'
 
     @staticmethod
     def isCharWhitespace(c):

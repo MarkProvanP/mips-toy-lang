@@ -1,5 +1,7 @@
 from lexer_tokens import Token
 
+from noggin_types import NT_types_base
+
 class Parser:
     tokenList = []
     tokenPosition = 0
@@ -37,9 +39,11 @@ class Parser:
 
 class Environment:
     d = {}
+    t = {}
 
     def __init__(self, d={}):
         self.d = d
+        self.t = NT_types_base
 
     def get(self, k):
         return self.d[k]
@@ -63,6 +67,9 @@ class Environment:
 
     def items(self):
         return self.d.items()
+
+    def types(self, name):
+        return self.t[name]
 
 class ParserException(Exception):
     pass
@@ -137,3 +144,25 @@ class ParserFunctionSignatureDefinitionNotEqualException(ParserException):
             "declaration\n"
             "%s\n"
             % (self.definition.source_ref_sig_only(), self.declaration.source_ref()))
+
+class ParserFunctionVariableDeclareDefineMismatchException(ParserException):
+    def __init__(self, declaration, definition):
+        self.declaration = declaration
+        self.definition = definition
+
+    def __str__(self):
+        return ("ParserFunctionVariableDeclareDefineMismatchException:"
+            "definition\n"
+            "%s\n"
+            "mismatches declaration"
+            "%s\n"
+            % (self.definition.source_ref(), self.declaration.source_ref()))
+
+class ParserUnknownTypeException(ParserException):
+    def __init__(self, unknownType):
+        self.unknownType = unknownType
+
+    def __str__(self):
+        return ("ParserUnknownTypeException:"
+            "type: %s is unknown"
+            % (str(self.unknownType)))
