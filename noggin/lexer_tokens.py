@@ -46,6 +46,10 @@ class Token(object):
         return "%s on line %d between char %d and %d" % (
             self.original, self.lineNo, self.charStart, self.charEnd)
 
+    def source_ref_short(self):
+        return ("\"%s\" at L: %d Ch: %d - %d"
+            % (self.original, self.lineNo, self.charStart, self.charEnd))
+
 # Primary expressions, where the content of the Token is actually important
 
 class BoolToken(Token):

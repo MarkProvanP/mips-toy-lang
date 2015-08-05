@@ -1062,8 +1062,6 @@ class FunctionSignatureArguments:
                 t = other.signatureArguments[num]
                 num += 1
                 if not s.sigVariableType == t.sigVariableType:
-                    print("s.sigVariableType: %s" % str(s.sigVariableType))
-                    print("t.sigVariableType: %s" % str(t.sigVariableType))
                     return False 
         except IndexError as e:
             return False
@@ -1599,7 +1597,6 @@ class FunctionDefinition:
         functionEnvironment = globalEnvironment.copy()
         for sigDeclare in staticSignatureArguments.signatureArguments:
             sigDeclareName = str(sigDeclare.sigVariableName)
-            print("sigDeclareName: %s", sigDeclareName)
             functionEnvironment.add(sigDeclareName, sigDeclare)
 
 
@@ -1627,7 +1624,6 @@ class FunctionDefinition:
         # We need to check that the definition argument types are equal to the
         # ones in the declaration
 
-        print("Checking type equality:")
         if not staticSignatureArguments.check_type_equality(
             staticDeclaration.signatureArguments):
             raise ParserFunctionSignatureDefinitionNotEqualException(
@@ -1639,6 +1635,9 @@ class FunctionDefinition:
         return functionDefinition
 
     def __str__(self):
+        return self.source_whole()
+
+    def source_whole(self):
         """Return a noggin source code representation."""
         return "function %s %s(%s) {\n%s}\n" % (
             self.functionType,
@@ -1646,8 +1645,15 @@ class FunctionDefinition:
             self.signatureArguments,
             self.statements)
 
+    def source_signature_only(self):
+        """Return a noggin source code represenation of the signature line only."""
+        return "function %s %s(%s) { ... }\n" % (
+            self.functionType,
+            self.functionName,
+            self.signatureArguments)
+
     def source_ref(self):
-        """Return a string referring to original source code.
+        """Return a string referring to all the original source code.
 
         This string will include the original line number and character start
         and end numbers.
@@ -1657,6 +1663,19 @@ class FunctionDefinition:
             + "between tokens: %s and %s" % (
                 self.firstToken.source_ref(),
                 self.lastToken.source_ref())
+
+    def source_ref_sig_only(self):
+        """Return a string referring to the signature line of the original source code.
+
+        This string will include the original line number and character start
+        and end numbers of the first line only.
+        """
+        return ("Function definition statement:\n"
+            "%s\n"
+            "between tokens: %s and %s"
+            % (self.source_signature_only(),
+                self.firstToken.source_ref_short(),
+                self.lastToken.source_ref_short()))
 
 
 class FunctionCallStatement(Statement):

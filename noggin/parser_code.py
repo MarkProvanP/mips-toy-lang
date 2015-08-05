@@ -131,6 +131,9 @@ class ParserFunctionSignatureDefinitionNotEqualException(ParserException):
 
     def __str__(self):
         return ("ParserFunctionSignatureDefinitionNotEqualException: function "
-            "definition %s argument types different from those in "
-            "declaration %s"
-            % (self.declaration.source_ref(), self.definition.source_ref()))
+            "definition\n"
+            "%s\n"
+            "argument types different from those in "
+            "declaration\n"
+            "%s\n"
+            % (self.definition.source_ref_sig_only(), self.declaration.source_ref()))
