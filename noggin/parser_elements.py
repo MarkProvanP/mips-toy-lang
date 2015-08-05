@@ -23,6 +23,7 @@ from parser_code import Parser, Environment, ParserException,\
     ParserVariableUseWithoutDeclareException,\
     ParserFunctionSignatureDefinitionNotEqualException
 
+from noggin_types import NT_types_base, NT_char, NT_uint, NT_int, NT_bool, NT_string
 
 def expect_token(token):
     """Expect a token type.
@@ -336,21 +337,57 @@ class FunctionCallExpression(PrimaryExpression):
         """Return a noggin source code representation."""
         return "%s(%s);" % (str(self.ident), str(self.callArguments))
 
+class Ident(PrimaryExpression):
+
+    """Ident class."""
+
+    token = None
+
+    def __init__(self, token):
+        """Construct an ident.
+
+        Arguments:
+        token -- the IdentToken from the original source code
+        """
+        self.token = token
+
+    def __str__(self):
+        """Return a noggin source code representation."""
+        return str(self.token)
+
+    def source_ref(self):
+        """Return a string referring to original source code.
+
+        This string will include the original line number and character start
+        and end numbers.
+        """
+        return ("Ident:\n"
+            "%s\n"
+            "at token: %s\n"
+            % (str(self),
+                self.token.source_ref()))
+
 
 class LiteralExpression(PrimaryExpression):
     token = None
+    nogginType = None
 
     """Literal expression class.
 
     A literal expression is an expression where the value is set in the source
-    code, e.g. a number literal or a string literal.
+    code, e.g. a number literal or a string literal. This class is abstract
+    as it is not possible to instantiate a literal expression directly.
     """
 
-    def __init__(self, token):
+    def __init__(self, token, nogginType):
         self.token = token
+        self.nogginType = nogginType
 
     def __eq__(self, other):
         return self.token.original == other.token.original
+
+    @abstractmethod
+    def source_ref(self): pass
 
 
 class Bool(LiteralExpression):
@@ -365,7 +402,7 @@ class Bool(LiteralExpression):
         Arguments:
         token -- the BoolToken from the original source code
         """
-        super(Bool, self).__init__(token)
+        super(Bool, self).__init__(token, NT_bool)
 
     def eval(self):
         """Return the original value evaluated as Python."""
@@ -387,35 +424,6 @@ class Bool(LiteralExpression):
             % (str(self),
                 self.token.source_ref()))
 
-class Ident(LiteralExpression):
-
-    """Ident class."""
-
-    token = None
-
-    def __init__(self, token):
-        """Construct an ident.
-
-        Arguments:
-        token -- the IdentToken from the original source code
-        """
-        super(Ident, self).__init__(token)
-
-    def __str__(self):
-        """Return a noggin source code representation."""
-        return str(self.token)
-
-    def source_ref(self):
-        """Return a string referring to original source code.
-
-        This string will include the original line number and character start
-        and end numbers.
-        """
-        return ("Ident:\n"
-            "%s\n"
-            "at token: %s\n"
-            % (str(self),
-                self.token.source_ref()))
 
 
 class Number(LiteralExpression):
@@ -430,7 +438,16 @@ class Number(LiteralExpression):
         Arguments:
         token -- the NumberToken from the original source code
         """
-        super(Number, self).__init__(token)
+        nogginType = None
+        if isinstance(token, UIntBase2Token) \
+            or isinstance(token, UIntBase8Token) \
+            or isinstance(token, UIntBase10Token) \
+            or isinstance(token, UIntBase16Token):
+            nogginType = NT_uint
+        elif isinstance(token, IntBase10Token):
+            nogginType = NT_int
+
+        super(Number, self).__init__(token, nogginType)
 
     def __str__(self):
         """Return a noggin source code representation."""
@@ -461,7 +478,7 @@ class Char(LiteralExpression):
         Arguments:
         token -- the CharToken from the original source code
         """
-        super(Char, self).__init__(token)
+        super(Char, self).__init__(token, NT_char)
 
     def eval(self):
         return chr(self.token)
@@ -494,7 +511,7 @@ class String(LiteralExpression):
         Arguments:
         token -- the StringToken from the original source code
         """
-        super(String, self).__init__(token)
+        super(String, self).__init__(token, NT_string)
 
     def eval(self):
         return str(self.token)
@@ -865,10 +882,12 @@ class DeclareStatement(Statement):
             
 class Type:
     ident = None
+    nogginType = None
     arrayDimension = 0
 
     def __init__(self, ident, arrayDimension):
         self.ident = ident
+        self.nogginType = NT_types_base[ident.token.original]
         self.arrayDimension = arrayDimension
 
     @staticmethod
@@ -913,7 +932,7 @@ class Type:
                 self.ident.source_ref()))
 
     def __eq__(self, other):
-        return self.ident == other.ident
+        return self.nogginType == other.nogginType
 
 class Name:
     ident = None
