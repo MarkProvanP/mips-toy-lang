@@ -337,7 +337,7 @@ class FunctionCallExpression(PrimaryExpression):
 
     def __str__(self):
         """Return a noggin source code representation."""
-        return "%s(%s);" % (str(self.ident), str(self.callArguments))
+        return "%s(%s)" % (str(self.ident), str(self.callArguments))
 
 class Ident(PrimaryExpression):
 
@@ -542,7 +542,7 @@ class Statement:
         """
         if isinstance(Parser.get_token(), IdentToken):
             if isinstance(Parser.get_relative_token(1), LeftParenToken):
-                return FunctionCallStatement.parse(environment)
+                return ExpressionStatement.parse(environment)
             elif isinstance(Parser.get_relative_token(1), AssignToken):
                 return AssignmentStatement.parse(environment)
             else:
@@ -1699,86 +1699,48 @@ class FunctionDefinition:
                 self.firstToken.source_ref_short(),
                 self.lastToken.source_ref_short()))
 
-
-class FunctionCallStatement(Statement):
+class ExpressionStatement(Statement):
     firstToken = None
     lastToken = None
-    ident = None
-    callArguments = None
+    expression = None
 
-    # Link to the declaration of this function
-    declaration = None
-
-    def __init__(
-            self,
-            firstToken,
-            lastToken,
-            ident,
-            callArguments,
-            declaration):
+    def __init__(self, firstToken, lastToken, expression):
         self.firstToken = firstToken
         self.lastToken = lastToken
-        self.ident = ident
-        self.callArguments = callArguments
-        self.declaration = declaration
+        self.expression = expression
 
     @staticmethod
     def parse(environment=Environment()):
-        """Returns tuple of function call statement and resulting environment.
+        """Returns a tuple of expression statement and resulting environment.
 
         A statement, if parsed, could return a changed environment. As a result
         this method will return a tuple of the type:
 
         (Statement, Environment)
 
-        where the Statement is whatever type of statement was parsed and the 
-        Environment is the environment representation, mapping names of variables and
+        where the Statemtn is whatever type of statement was parsed and the
+        Environment is the environment represenation, mapping names of variables
         and functions to their initial declaration.
 
-        A function call statement will not change the environment, so the
+        An expression statement will not change the environment, so the
         original one is returned.
         """
         staticFirstToken = None
         staticLastToken = None
-        staticIdent = None
-        staticCallArguments = None
-        staticDeclaration = None
-
-        if isinstance(Parser.get_token(), IdentToken):
-            staticIdent = Ident(Parser.get_token())
-            staticFirstToken = staticIdent
-            Parser.advance_token()
-        else:
-            raise ParserWrongTokenException(Parser.get_token(), IdentToken)
-
-        # Look up environment to see if this function has been declared yet.
-        k = str(staticIdent)
-        try:
-            staticDeclaration = environment.get(k)
-            # Then this function type and name is already in the environment
-        except KeyError as e:
-            raise ParserFunctionUseWithoutDeclareException(staticIdent)
-
-        expect_token(LeftParenToken)
+        staticExpression = None
 
         try:
-            staticCallArguments = CallArguments.parse(environment)
+            staticExpression = Expression.parse(environment)
         except ParserException as e:
-            print(("Caught %s while parsing FunctionCallStatement "
-                "call arguments")
-                % str(e))
+            print("Caught %s while parsing ExpressionStatement" % str(e))
             raise e
 
-        expect_token(RightParenToken)
+        staticLastToken = expect_token(SemiColonToken)
 
-        expect_token(SemiColonToken)
-
-        newStatement = FunctionCallStatement(
+        newStatement = ExpressionStatement(
             staticFirstToken,
             staticLastToken,
-            staticIdent,
-            staticCallArguments,
-            staticDeclaration)
+            staticExpression)
 
         # No change to the environment
 
@@ -1786,8 +1748,7 @@ class FunctionCallStatement(Statement):
 
     def __str__(self):
         """Return a noggin source code representation."""
-        return "%s(%s);" % (str(self.ident), str(self.callArguments))
-
+        return str(self.expression) + ";"
 
 class IfElseStatement(Statement):
     ifThens = []

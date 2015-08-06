@@ -36,7 +36,7 @@ statements ::=
 
 statement ::=
 	asm-statement
-	function-call
+	expression-statement
 	assignment
 	ifelse
 	while
@@ -51,8 +51,8 @@ statement ::=
 asm-statement ::=
 	"ASM" '{' { string } '}' ;
 
-function-call ::=
-	function-call-expression ';' ;
+expression-statement ::=
+	expression ';' ;
 
 callarguments ::=
 	ε
