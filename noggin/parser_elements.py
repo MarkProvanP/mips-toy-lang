@@ -734,7 +734,7 @@ class AssignmentStatement(Statement):
 
     def __str__(self):
         """Return a noggin source code representation."""
-        return "%s = %s" % (self.ident, self.expression)
+        return "%s = %s;" % (self.ident, self.expression)
 
 
 class CallArguments:
