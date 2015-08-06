@@ -113,6 +113,9 @@ class PrimaryExpression(Expression):
             elif isinstance(Parser.get_relative_token(1), LeftParenToken):
                 staticPrimaryExpression = FunctionCallExpression.parse(
                     environment)
+            elif isinstance(Parser.get_relative_token(1), AssignToken):
+                staticPrimaryExpression = AssignmentExpression.parse(
+                    environment)
             else:
                 staticPrimaryExpression = VariableAccessExpression.parse(
                     environment)
@@ -544,7 +547,7 @@ class Statement:
             if isinstance(Parser.get_relative_token(1), LeftParenToken):
                 return ExpressionStatement.parse(environment)
             elif isinstance(Parser.get_relative_token(1), AssignToken):
-                return AssignmentStatement.parse(environment)
+                return ExpressionStatement.parse(environment)
             else:
                 raise ParserWrongTokenException(Parser.get_token(),
                     "2ndidentstatement")
@@ -665,7 +668,7 @@ class ASMStatement(Statement):
         s += "}"
         return s
 
-class AssignmentStatement(Statement):
+class AssignmentExpression(PrimaryExpression):
     firstToken = None
     lastToken = None
     ident = None
@@ -684,20 +687,6 @@ class AssignmentStatement(Statement):
 
     @staticmethod
     def parse(environment=Environment()):
-        """Returns tuple of assignment statement and resulting environment.
-
-        A statement, if parsed, could return a changed environment. As a result
-        this method will return a tuple of the type:
-
-        (Statement, Environment)
-
-        where the Statement is whatever type of statement was parsed and  
-        Environment is the environment representation, mapping names of
-        variables and functions to their initial declaration.
-
-        An assignment statement will not change the environment, so the original
-        one is returned.
-        """
         staticFirstToken = None
         staticLastToken = None
         staticIdent = None
@@ -715,26 +704,19 @@ class AssignmentStatement(Statement):
         try:
             staticExpression = Expression.parse(environment)
         except ParserException as e:
-            print("Caught %s while parsing AssignmentStatement expression"
+            print("Caught %s while parsing AssignmentExpression expression"
                 % str(e))
             raise e
 
-        staticLastToken = expect_token(SemiColonToken)
-
-        newStatement = AssignmentStatement(
+        return AssignmentExpression(
             staticFirstToken,
             staticLastToken,
             staticIdent,
             staticExpression)
 
-        # An assignment statment will not change the environment, so the 
-        # original one is returned alongside the statement.
-
-        return (newStatement, environment)
-
     def __str__(self):
         """Return a noggin source code representation."""
-        return "%s = %s;" % (self.ident, self.expression)
+        return "%s = %s" % (self.ident, self.expression)
 
 
 class CallArguments:

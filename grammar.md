@@ -37,7 +37,6 @@ statements ::=
 statement ::=
 	asm-statement
 	expression-statement
-	assignment
 	ifelse
 	while
 	dowhile
@@ -57,9 +56,6 @@ expression-statement ::=
 callarguments ::=
 	ε
 	expression { ',' expression } ;
-
-assignment ::=
-	ident '=' expression ';' ;
 
 ifelse ::=
 	"IF" '(' expression ')' '{' statements '}' { elif }
@@ -109,6 +105,7 @@ expression ::=
 primary-expression ::=
 	literal-expression
 	function-call-expression
+	assignment-expression
 	variable-access-expression ;
 
 literal-expression ::=
@@ -119,6 +116,9 @@ literal-expression ::=
 
 function-call-expression ::=
 	ident '(' callarguments ')' ;
+
+assignment-expression ::=
+	ident '=' expression ;
 
 variable-access-expression ::=
 	ident
