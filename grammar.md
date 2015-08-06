@@ -131,11 +131,12 @@ bool ::=
 	"TRUE" | "FALSE" ;
 
 binary-expression ::=
-	expression operator expression ;
+	expression binary-operator expression ;
 
-operator ::=
+binary-operator ::=
 	`'+' | '-' | '*' | '/' |
-	'==' | '!=' | '>' | '<' | '<=' | '>=' ;`
+	'==' | '!=' | '>' | '<' | '<=' | '>=' |
+	'&' | '|' | '&&' | '||' | '>>' | '<<' ;`
 
 ident ::=
 	ident-start-char { ident-continue-char } ;
