@@ -172,34 +172,27 @@ class Lexer:
                 Lexer.continue_lexing_type()
             elif Lexer.c == '\'':
                 # Lex a character
-                Lexer.string += Lexer.c
-                Lexer.c = Lexer.get_char()
+                Lexer.continue_lexing_type()
                 if Lexer.c == '\\':
                     # Lex an escaped character, so two chars must be read
-                    Lexer.string += Lexer.c
-                    Lexer.c = Lexer.get_char()
-                Lexer.string += Lexer.c
-                Lexer.c = Lexer.get_char()
+                    Lexer.continue_lexing_type()
+                Lexer.continue_lexing_type()
                 if Lexer.c == '\'':
                     # The final character should be a single quote
-                    Lexer.c = Lexer.get_char()
+                    Lexer.continue_lexing_type()
                     return CharToken(Lexer.string, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
                 else:
                     raise LexerException(Lexer.c, '\'')
             elif Lexer.c == '\"':
                 # Lex a string
-                Lexer.string += Lexer.c
-                Lexer.c = Lexer.get_char()
+                Lexer.continue_lexing_type()
                 while Lexer.c != "\"":
                     # Lex the next character in the string
-                    Lexer.string += Lexer.c
-                    Lexer.c = Lexer.get_char()
-                Lexer.string += Lexer.c
-                Lexer.c = Lexer.get_char()
+                    Lexer.continue_lexing_type()
+                Lexer.continue_lexing_type()
                 return StringToken(Lexer.string, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
             else:
-                Lexer.string += Lexer.c
-                Lexer.c = Lexer.get_char()
+                Lexer.continue_lexing_type()
                 if Lexer.isCharSecondPunctuation(Lexer.c):
                     Lexer.continue_lexing_type()
             return Lexer.makePunctuationToken(Lexer.string)
