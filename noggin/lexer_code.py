@@ -267,7 +267,8 @@ class Lexer:
         elif s == ':':
             return ColonToken(s, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
         elif s == '/' or s == '*' or s == '+' or s == '-' or s == '==' or s == '!='\
-                or s == '>' or s == '<' or s == '>=' or s == '<=' or s == '<<' or s == '>>':
+                or s == '>' or s == '<' or s == '>=' or s == '<=' or s == '<<' or s == '>>'\
+                or s == '&' or s == '|' or s == '&&' or s == '||':
             return BinaryOperatorToken(s, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)
         elif s == '++' or s == '--':
             return UnaryOperatorToken(s, Lexer.currentLineNo, Lexer.tokenStartCharNo, Lexer.tokenEndCharNo)

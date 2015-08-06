@@ -4,4 +4,9 @@ function void main() {
 	declare uint i = 0b0001;
 	declare uint j;
 	j = i << 2;
+	declare uint k;
+	k = j & i;
+	k = k | j;
+	k = j && 0b1;
+	k = j || 0b0100;
 }
